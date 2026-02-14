@@ -5,29 +5,29 @@
 @tailwind utilities;
 
 :root {
-  /* Premium Dark Theme - Deep Navy/Black base */
-  --background: 222 47% 6%;
+  /* Premium Dark Theme - Deep Charcoal base */
+  --background: 220 20% 5%;
   --foreground: 210 40% 98%;
 
-  /* Muted Teal/Green Accents */
-  --primary: 168 55% 55%;
-  --primary-foreground: 222 47% 11%;
+  /* Vibrant Red Accent from Logo */
+  --primary: 0 84% 60%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 217 33% 17%;
+  --secondary: 220 20% 12%;
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 217 33% 12%;
+  --muted: 220 20% 10%;
   --muted-foreground: 215 20% 65%;
 
-  --accent: 168 55% 55%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 0 84% 60% / 0.15;
+  --accent-foreground: 0 84% 60%;
 
   --destructive: 0 62% 30%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 217 33% 15%;
-  --input: 217 33% 15%;
-  --ring: 168 55% 55%;
+  --border: 0 84% 60% / 0.1;
+  --input: 0 84% 60% / 0.1;
+  --ring: 0 84% 60%;
 
   --radius: 0.5rem;
 }
