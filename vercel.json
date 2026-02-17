@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build:client",
+  "outputDirectory": "dist/public",
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/api/waitlist", "destination": "/api/waitlist" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
