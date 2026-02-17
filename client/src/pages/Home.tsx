@@ -1,370 +1,601 @@
-import { useState, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Sphere, MeshDistortMaterial, Stars } from "@react-three/drei";
-import * as THREE from "three";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { insertWaitlistSchema, type InsertWaitlistEntry } from "@shared/schema";
-import { api, buildUrl } from "@shared/routes";
+import { api } from "@shared/routes";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Users,
-  MessageSquare,
-  Repeat,
-  Target,
-  ChevronRight,
-  ArrowRight,
-  Network,
-  ShieldCheck,
-  CheckCircle2,
-  Cpu,
-  TrendingUp,
-} from "lucide-react";
-import logoImg from "@assets/image_1771063202481.png";
+import { CheckCircle2, ArrowDown } from "lucide-react";
+import { WebGLMeshBackground } from "@/components/WebGLMeshBackground";
 
-function Scene() {
-  return (
-    <group>
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-        <Sphere args={[1, 64, 64]} scale={2.5}>
-          <MeshDistortMaterial
-            color="#ef4444"
-            speed={3}
-            distort={0.4}
-            radius={1}
-            emissive="#991b1b"
-            emissiveIntensity={0.5}
-            roughness={0.2}
-            metalness={0.8}
-          />
-        </Sphere>
-      </Float>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#ef4444" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#450a0a" />
-    </group>
-  );
-}
+const RED = "#E63946";
+
+const TYPING_LINE_1 = "You already know the right people.";
+const TYPING_LINE_2 = "You're just not doing anything with that.";
+const CHAR_DELAY_MS = 45;
+const PAUSE_BETWEEN_LINES_MS = 400;
+
+const ROLES = ["Founder", "Student", "Operator", "Freelancer", "Investor", "Agency", "Other"] as const;
+
+// Slide animation variants
+const slide = {
+  enter: (dir: number) => ({ opacity: 0, x: dir * 48 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: -dir * 48 }),
+};
+const slideTransition = { duration: 0.38, ease: [0.22, 1, 0.36, 1] };
+
+// Scroll-in variants for sections
+const scrollReveal = {
+  hidden: { opacity: 0, y: 36 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+const scrollRevealNoDelay = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+};
+const scrollRevealViewport = { once: true, margin: "-80px", amount: 0.2 };
 
 export default function Home() {
   const { toast } = useToast();
+  const [step, setStep] = useState(0); // 0=name, 1=email, 2=role
+  const [dir, setDir] = useState(1);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const typingSectionRef = useRef<HTMLElement>(null);
+  const [typingStarted, setTypingStarted] = useState(false);
+  const [typedLine1, setTypedLine1] = useState("");
+  const [typedLine2, setTypedLine2] = useState("");
+  const [typingComplete, setTypingComplete] = useState(false);
 
   const form = useForm<InsertWaitlistEntry>({
     resolver: zodResolver(insertWaitlistSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      role: "Founder",
-    },
+    defaultValues: { name: "", email: "", role: "Founder" },
+    mode: "onChange",
   });
+
+  const name = form.watch("name");
+  const email = form.watch("email");
+  const role = form.watch("role");
 
   const mutation = useMutation({
     mutationFn: async (data: InsertWaitlistEntry) => {
       const res = await apiRequest("POST", api.waitlist.create.path, data);
       return res.json();
     },
-    onSuccess: () => {
-      setIsSuccess(true);
-      toast({
-        title: "Joined Waitlist",
-        description: "We'll be in touch with early access details.",
-      });
-      form.reset();
-    },
+    onSuccess: () => setIsSuccess(true),
     onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Something went wrong", description: error.message, variant: "destructive" });
     },
   });
 
-  const onSubmit = (data: InsertWaitlistEntry) => {
-    mutation.mutate(data);
+  const advance = async (currentField: keyof InsertWaitlistEntry) => {
+    const valid = await form.trigger(currentField);
+    if (!valid) return;
+    setDir(1);
+    setStep((s) => s + 1);
   };
 
-  const scrollToWaitlist = () => {
+  const back = () => {
+    setDir(-1);
+    setStep((s) => s - 1);
+  };
+
+  const scrollToForm = () => {
     document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Always start at top when visiting the page (prevents scroll-to-form from hash/restoration/focus)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Start typing when the divider section enters viewport
+  useEffect(() => {
+    const el = typingSectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setTypingStarted((s) => (s ? s : true));
+      },
+      { threshold: 0.3 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Run typewriter once typing has started
+  useEffect(() => {
+    if (!typingStarted) return;
+    let cancelled = false;
+    let t1: ReturnType<typeof setTimeout> | null = null;
+    let t2: ReturnType<typeof setTimeout> | null = null;
+
+    let i = 0;
+    const runLine1 = () => {
+      if (cancelled || i >= TYPING_LINE_1.length) {
+        t2 = setTimeout(() => runLine2(), PAUSE_BETWEEN_LINES_MS);
+        return;
+      }
+      setTypedLine1(TYPING_LINE_1.slice(0, i + 1));
+      i += 1;
+      t1 = setTimeout(runLine1, CHAR_DELAY_MS);
+    };
+    let j = 0;
+    const runLine2 = () => {
+      if (cancelled) return;
+      if (j >= TYPING_LINE_2.length) {
+        setTypingComplete(true);
+        return;
+      }
+      setTypedLine2(TYPING_LINE_2.slice(0, j + 1));
+      j += 1;
+      t2 = setTimeout(runLine2, CHAR_DELAY_MS);
+    };
+
+    runLine1();
+    return () => {
+      cancelled = true;
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
+    };
+  }, [typingStarted]);
+
   return (
-    <div className="min-h-screen bg-background selection:bg-primary/30">
-      {/* WebGL Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-          <Scene />
-        </Canvas>
-      </div>
+    <div className="min-h-screen text-white" style={{ backgroundColor: "#08090A", fontFamily: "'Inter', sans-serif" }}>
+      <WebGLMeshBackground />
+      {/* Ambient top glow */}
+      <div
+        className="fixed inset-x-0 top-0 h-[520px] pointer-events-none z-0"
+        style={{ background: `radial-gradient(ellipse 60% 50% at 50% -5%, rgba(230,57,70,0.11) 0%, transparent 70%)` }}
+      />
 
       <div className="relative z-10">
-        {/* Navigation */}
-        <header className="container mx-auto px-6 py-8 flex items-center justify-between border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="Prodizzy Logo" className="w-10 h-10" />
-            <span className="text-2xl font-bold font-display tracking-tight">Prodizzy</span>
+        {/* ── NAV ── */}
+        <header
+          className="fixed top-0 inset-x-0 z-50"
+          style={{
+            borderBottom: "1px solid rgba(255,255,255,0.05)",
+            backdropFilter: "blur(14px)",
+            background: "rgba(8,9,10,0.8)",
+          }}
+        >
+          <div className="mx-auto px-6 h-[58px] flex items-center justify-between max-w-4xl">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="Prodizzy" className="w-6 h-6 object-contain" />
+              <span className="text-[14px] font-semibold tracking-tight">Prodizzy</span>
+            </div>
+            <button
+              onClick={scrollToForm}
+              className="text-[13px] font-medium transition-colors duration-200"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
+            >
+              Get access →
+            </button>
           </div>
-          <Button onClick={scrollToWaitlist} variant="outline" className="border-primary/20 hover:bg-primary/10 hover:text-primary transition-all rounded-full">
-            Join Waitlist
-          </Button>
         </header>
 
-        {/* Hero Section */}
-        <section className="container mx-auto px-6 py-24 lg:py-32 flex flex-col items-center text-center">
+        {/* ── HERO ── */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-[58px]">
+          {/* Staggered entrance */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl"
+            className="max-w-2xl"
+            initial="hidden"
+            animate="visible"
+            variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
           >
-            <h1 className="text-6xl lg:text-8xl font-bold font-display leading-[1.1] mb-8 text-balance bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-              Turn Networking <br />
-              <span className="text-primary italic">Into Outcomes.</span>
-            </h1>
-            <p className="text-xl lg:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-              A calm, intelligent networking operating system that turns 
-              connections into hires, deals, and partnerships—automatically.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" onClick={scrollToWaitlist} className="min-h-12 px-8 text-lg font-medium group rounded-full">
-                Join Waitlist
-                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button size="lg" variant="ghost" className="min-h-12 px-8 text-lg font-medium rounded-full hover:bg-white/5">
-                Learn More
-              </Button>
-            </div>
+            {/* Headline */}
+            <motion.h1
+              variants={{ hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
+              className="font-bold leading-[1.06] tracking-[-0.035em] mb-6"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2.6rem, 6.5vw, 4.75rem)" }}
+            >
+              Your connections
+              <br />
+              aren't working for you.
+              <br />
+              <span style={{ color: RED }}>Yet.</span>
+            </motion.h1>
+
+            {/* Sub */}
+            <motion.p
+              variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}
+              className="text-[16px] sm:text-[17px] leading-relaxed mb-14 max-w-md mx-auto"
+              style={{ color: "rgba(255,255,255,0.40)" }}
+            >
+              Prodizzy turns your scattered network into warm intros and real outcomes automatically.
+            </motion.p>
+
+            {/* CTA */}
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}
+            >
+              <button
+                onClick={scrollToForm}
+                className="inline-flex flex-col items-center gap-2 group"
+                style={{ color: "rgba(255,255,255,0.35)" }}
+              >
+                <span className="text-[13px] font-medium transition-colors duration-200 group-hover:text-white">
+                  Get early access
+                </span>
+                <ArrowDown
+                  size={16}
+                  className="transition-transform duration-300 group-hover:translate-y-1"
+                />
+              </button>
+            </motion.div>
           </motion.div>
         </section>
 
-        {/* Problem Section */}
-        <section className="container mx-auto px-6 py-24 border-y border-white/5 bg-background/50">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* ── DIVIDER STATEMENT ── */}
+        <motion.section
+          ref={typingSectionRef}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true, margin: "-80px", amount: 0.2 }}
+          className="px-6 py-20"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+        >
+          <p
+            className="max-w-2xl mx-auto text-center text-2xl sm:text-3xl font-semibold leading-snug tracking-[-0.02em] min-h-[4.5em] sm:min-h-[5rem] flex flex-col items-center justify-center"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "rgba(255,255,255,0.65)" }}
+          >
+            <span>
+              {typedLine1}
+              {!typingComplete && typedLine2.length === 0 && (
+                <span className="inline-block w-0.5 h-[1em] align-baseline ml-0.5 bg-white/80 animate-pulse" aria-hidden />
+              )}
+            </span>
+            {typedLine2.length > 0 && (
+              <>
+                <br />
+                <span style={{ color: "#fff" }}>
+                  {typedLine2}
+                  {!typingComplete && (
+                    <span className="inline-block w-0.5 h-[1em] align-baseline ml-0.5 bg-white/80 animate-pulse" aria-hidden />
+                  )}
+                </span>
+              </>
+            )}
+          </p>
+        </motion.section>
+
+        {/* ── THREE STATS / REASONS ── */}
+        <motion.section
+          className="px-6 pb-24"
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollRevealViewport}
+          variants={{ visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
+        >
+          <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ background: "rgba(255,255,255,0.06)", borderRadius: "16px", overflow: "hidden" }}>
             {[
-              {
-                icon: Target,
-                title: "Manual Effort",
-                desc: "Networking shouldn't feel like a second job.",
-              },
-              {
-                icon: Repeat,
-                title: "Unreliable Follow-ups",
-                desc: "Never lose a critical connection to a forgotten DM.",
-              },
-              {
-                icon: MessageSquare,
-                title: "Lost Conversations",
-                desc: "Your network is scattered across 10 different apps.",
-              },
-              {
-                icon: TrendingUp,
-                title: "Low Conversion",
-                desc: "Turn passive chats into meaningful business outcomes.",
-              },
+              { stat: "87%", label: "of deals come through warm intros" },
+              { stat: "10+", label: "apps your network is scattered across" },
+              { stat: "0", label: "of your follow-ups happen automatically" },
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="glass-panel p-8 rounded-2xl relative overflow-hidden group"
+                variants={scrollReveal}
+                custom={i}
+                className="px-7 py-8"
+                style={{ background: "#08090A" }}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-                  <item.icon className="text-primary w-6 h-6" />
+                <div
+                  className="text-4xl font-bold mb-2 tracking-tight"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: RED }}
+                >
+                  {item.stat}
                 </div>
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                <div className="text-[13px] leading-snug" style={{ color: "rgba(255,255,255,0.38)" }}>
+                  {item.label}
+                </div>
               </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        {/* Solution Section */}
-        <section className="container mx-auto px-6 py-24 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+        {/* ── MULTI-STEP WAITLIST ── */}
+        <motion.section
+          id="waitlist"
+          className="px-6 py-28"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollRevealViewport}
+          variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } } }}
+        >
+          <div className="max-w-lg mx-auto">
+            {/* Section label */}
+            <motion.p
+              variants={scrollRevealNoDelay}
+              className="text-[11px] uppercase tracking-[0.12em] font-semibold mb-16"
+              style={{ color: "rgba(255,255,255,0.22)" }}
             >
-              <h2 className="text-4xl lg:text-5xl font-bold font-display mb-8">
-                The Operating System <br />
-                for your Network.
-              </h2>
-              <ul className="space-y-8">
-                {[
-                  { title: "Declare Intent", desc: "Tell the AI who you need to meet (e.g., 'Series A Investors')." },
-                  { title: "System Executes", desc: "Prodizzy identifies high-warmth paths across your network." },
-                  { title: "Consent-Based", desc: "Double opt-in intros ensure high signal and zero spam." },
-                  { title: "Outcomes Tracked", desc: "Track ROI from initial intro to signed deal." },
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-4">
-                    <div className="mt-1.5 w-5 h-5 rounded-full border border-primary flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold">{item.title}</div>
-                      <div className="text-muted-foreground">{item.desc}</div>
-                    </div>
-                  </li>
+              Join the waitlist
+            </motion.p>
+
+            {/* Progress dots */}
+            {!isSuccess && (
+              <motion.div variants={scrollRevealNoDelay} className="flex gap-2 mb-12">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="h-[3px] rounded-full transition-all duration-400"
+                    style={{
+                      flex: i <= step ? 2 : 1,
+                      background: i <= step ? RED : "rgba(255,255,255,0.1)",
+                      transition: "all 0.4s cubic-bezier(0.22,1,0.36,1)",
+                    }}
+                  />
                 ))}
-              </ul>
-            </motion.div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full" />
-              <Card className="relative glass-panel border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-                <CardContent className="p-8 space-y-6">
-                  <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Network className="text-primary w-5 h-5" />
+              </motion.div>
+            )}
+
+            <motion.form variants={scrollRevealNoDelay} onSubmit={(e) => { e.preventDefault(); }}>
+              <AnimatePresence mode="wait" custom={dir}>
+                {isSuccess ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-center py-10"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-7"
+                      style={{ background: "rgba(230,57,70,0.08)", border: `1px solid rgba(230,57,70,0.22)` }}
+                    >
+                      <CheckCircle2 size={22} style={{ color: RED }} />
+                    </motion.div>
+                    <h3
+                      className="text-3xl font-bold mb-3"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      You're in, {name}.
+                    </h3>
+                    <p className="text-[15px] leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>
+                      We'll reach out to <span style={{ color: "rgba(255,255,255,0.7)" }}>{email}</span> when
+                      your spot opens up.
+                    </p>
+                  </motion.div>
+                ) : step === 0 ? (
+                  <motion.div
+                    key="step-name"
+                    custom={dir}
+                    variants={slide}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={slideTransition}
+                  >
+                    <h2
+                      className="text-3xl sm:text-4xl font-bold mb-2 tracking-[-0.025em]"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      What's your name?
+                    </h2>
+                    <p className="text-[14px] mb-8" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      Let's start somewhere.
+                    </p>
+                    <input
+                      placeholder="Jane Doe"
+                      {...form.register("name")}
+                      onKeyDown={(e) => e.key === "Enter" && advance("name")}
+                      className="w-full text-xl sm:text-2xl font-medium outline-none pb-3 mb-2 bg-transparent transition-colors duration-200"
+                      style={{
+                        borderBottom: "1px solid rgba(255,255,255,0.14)",
+                        color: "#fff",
+                      }}
+                      onFocus={(e) => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.42)")}
+                      onBlur={(e) => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.14)")}
+                    />
+                    {form.formState.errors.name && (
+                      <p className="text-[13px] mb-6" style={{ color: RED }}>
+                        {form.formState.errors.name.message}
+                      </p>
+                    )}
+                    <div className="mt-8">
+                      <button
+                        type="button"
+                        onClick={() => advance("name")}
+                        className="inline-flex items-center gap-2 font-semibold text-[15px] transition-opacity hover:opacity-70"
+                        style={{ color: "#fff" }}
+                      >
+                        Continue
+                        <span style={{ color: RED }}>→</span>
+                      </button>
                     </div>
-                    <div>
-                      <div className="text-sm font-medium">Intent declared: Fundraising</div>
-                      <div className="text-xs text-muted-foreground">Series A • Strategic Partners</div>
+                  </motion.div>
+                ) : step === 1 ? (
+                  <motion.div
+                    key="step-email"
+                    custom={dir}
+                    variants={slide}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={slideTransition}
+                  >
+                    <h2
+                      className="text-3xl sm:text-4xl font-bold mb-2 tracking-[-0.025em]"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      Hi {name}, where should
+                      <br />we send your invite?
+                    </h2>
+                    <p className="text-[14px] mb-8" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      We'll only ever use this to reach you about Prodizzy.
+                    </p>
+                    <input
+                      autoFocus
+                      type="email"
+                      placeholder="you@company.com"
+                      {...form.register("email")}
+                      onKeyDown={(e) => e.key === "Enter" && advance("email")}
+                      className="w-full text-xl sm:text-2xl font-medium outline-none pb-3 mb-2 bg-transparent transition-colors duration-200"
+                      style={{
+                        borderBottom: "1px solid rgba(255,255,255,0.14)",
+                        color: "#fff",
+                      }}
+                      onFocus={(e) => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.42)")}
+                      onBlur={(e) => (e.currentTarget.style.borderBottomColor = "rgba(255,255,255,0.14)")}
+                    />
+                    {form.formState.errors.email && (
+                      <p className="text-[13px] mb-6" style={{ color: RED }}>
+                        {form.formState.errors.email.message}
+                      </p>
+                    )}
+                    <div className="mt-8 flex items-center gap-6">
+                      <button
+                        type="button"
+                        onClick={back}
+                        className="text-[14px] transition-colors"
+                        style={{ color: "rgba(255,255,255,0.3)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => advance("email")}
+                        className="inline-flex items-center gap-2 font-semibold text-[15px] transition-opacity hover:opacity-70"
+                        style={{ color: "#fff" }}
+                      >
+                        Continue
+                        <span style={{ color: RED }}>→</span>
+                      </button>
                     </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="h-12 bg-white/5 rounded-md border border-white/5 animate-pulse" />
-                    <div className="h-12 bg-white/5 rounded-md border border-white/5 animate-pulse delay-75" />
-                    <div className="h-12 bg-white/5 rounded-md border border-white/5 animate-pulse delay-150" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="step-role"
+                    custom={dir}
+                    variants={slide}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={slideTransition}
+                  >
+                    <h2
+                      className="text-3xl sm:text-4xl font-bold mb-2 tracking-[-0.025em]"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      Last one.
+                    </h2>
+                    <p className="text-[14px] mb-8" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      What best describes you?
+                    </p>
+
+                    {/* Role pills */}
+                    <div className="flex flex-wrap gap-2.5 mb-10">
+                      {ROLES.map((r) => {
+                        const selected = role === r;
+                        return (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => form.setValue("role", r)}
+                            className="px-4 py-2 rounded-full text-[14px] font-medium transition-all duration-200"
+                            style={{
+                              background: selected ? RED : "rgba(255,255,255,0.05)",
+                              border: selected ? `1px solid ${RED}` : "1px solid rgba(255,255,255,0.09)",
+                              color: selected ? "#fff" : "rgba(255,255,255,0.55)",
+                              boxShadow: selected ? `0 0 18px -4px rgba(230,57,70,0.45)` : "none",
+                            }}
+                          >
+                            {r}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {form.formState.errors.role && (
+                      <p className="text-[13px] mb-4" style={{ color: RED }}>
+                        {form.formState.errors.role.message}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-6">
+                      <button
+                        type="button"
+                        onClick={back}
+                        className="text-[14px] transition-colors"
+                        style={{ color: "rgba(255,255,255,0.3)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        type="button"
+                        disabled={mutation.isPending}
+                        onClick={() => form.handleSubmit((d) => mutation.mutate(d))()}
+                        className="h-[46px] px-7 rounded-xl font-semibold text-[15px] text-white transition-opacity disabled:opacity-60 hover:opacity-88"
+                        style={{ background: RED, boxShadow: `0 0 28px -6px rgba(230,57,70,0.5)` }}
+                      >
+                        {mutation.isPending ? "Joining..." : "Get early access"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.form>
+          </div>
+        </motion.section>
+
+        {/* ── FOOTER ── */}
+        <motion.footer
+          className="px-6 py-7"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          <div
+            className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Prodizzy" className="w-4 h-4 object-contain opacity-35" />
+              <span className="text-[12px] font-medium" style={{ color: "rgba(255,255,255,0.25)" }}>
+                Prodizzy
+              </span>
+            </div>
+            <p className="text-[12px]" style={{ color: "rgba(255,255,255,0.18)" }}>
+              © 2026 Prodizzy, Inc. All rights reserved.
+            </p>
+            <div className="flex gap-5">
+              {["Twitter", "LinkedIn", "Privacy"].map((l) => (
+                <a
+                  key={l}
+                  href="#"
+                  className="text-[12px] transition-colors"
+                  style={{ color: "rgba(255,255,255,0.25)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.25)")}
+                >
+                  {l}
+                </a>
+              ))}
             </div>
           </div>
-        </section>
-
-        {/* Waitlist Section */}
-        <section id="waitlist" className="container mx-auto px-6 py-24 lg:py-32 border-t border-white/5 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[100px] rounded-full -z-10" />
-          
-          <div className="max-w-xl mx-auto text-center mb-12">
-            <h2 className="text-4xl font-bold font-display mb-4">Join the Inner Circle</h2>
-            <p className="text-muted-foreground">
-              We are onboarding users gradually to ensure quality. Secure your spot in line today.
-            </p>
-          </div>
-
-          <Card className="max-w-lg mx-auto glass-panel border-white/10 rounded-3xl shadow-2xl">
-            <CardContent className="p-8">
-              {isSuccess ? (
-                <motion.div 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <div className="w-16 h-16 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">You're on the list</h3>
-                  <p className="text-muted-foreground">
-                    We'll be in touch soon. Keep an eye on your inbox for your invite.
-                  </p>
-                </motion.div>
-              ) : (
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Jane Doe" {...field} className="bg-white/5 border-white/10 focus:border-primary/50 h-11 transition-colors" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Work Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="jane@company.com" {...field} className="bg-white/5 border-white/10 focus:border-primary/50 h-11 transition-colors" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="role"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>What best describes you?</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-white/5 border-white/10 focus:border-primary/50 h-11 transition-colors">
-                                <SelectValue placeholder="Select a role" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-secondary border-white/10">
-                              <SelectItem value="Founder">Founder</SelectItem>
-                              <SelectItem value="Student">Student</SelectItem>
-                              <SelectItem value="Operator">Operator</SelectItem>
-                              <SelectItem value="Freelancer">Freelancer</SelectItem>
-                              <SelectItem value="Investor">Investor</SelectItem>
-                              <SelectItem value="Agency">Agency Owner</SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" className="w-full min-h-12 text-lg font-medium rounded-full shadow-[0_0_20px_-5px_rgba(var(--primary),0.4)]" disabled={mutation.isPending}>
-                      {mutation.isPending ? "Joining..." : "Join Waitlist"}
-                    </Button>
-                  </form>
-                </Form>
-              )}
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Footer */}
-        <footer className="container mx-auto px-6 py-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 bg-background">
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="Prodizzy Logo" className="w-6 h-6 grayscale" />
-            <span className="text-xl font-bold font-display opacity-50">Prodizzy</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © 2026 Prodizzy. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Twitter</a>
-            <a href="#" className="hover:text-primary transition-colors">LinkedIn</a>
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-          </div>
-        </footer>
+        </motion.footer>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { api, type InsertWaitlistEntry, type WaitlistResponse } from "@shared/routes";
+import { api } from "@shared/routes";
+import type { InsertWaitlistEntry, WaitlistResponse } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export function useCreateWaitlist() {

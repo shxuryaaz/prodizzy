@@ -19,9 +19,7 @@ export function Navbar() {
     >
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-primary" />
-          </div>
+          <img src="/logo.png" alt="Prodizzy" className="w-6 h-6 object-contain" />
           <span className="font-display font-bold text-lg tracking-tight">Prodizzy</span>
         </div>
 

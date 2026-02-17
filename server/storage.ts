@@ -1,11 +1,6 @@
 
-import { db } from "./db";
-import {
-  waitlistEntries,
-  type InsertWaitlistEntry,
-  type WaitlistResponse
-} from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { supabase } from "./db";
+import type { InsertWaitlistEntry, WaitlistResponse } from "@shared/schema";
 
 export interface IStorage {
   createWaitlistEntry(entry: InsertWaitlistEntry): Promise<WaitlistResponse>;
@@ -14,13 +9,26 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async createWaitlistEntry(entry: InsertWaitlistEntry): Promise<WaitlistResponse> {
-    const [created] = await db.insert(waitlistEntries).values(entry).returning();
-    return created;
+    const { data, error } = await supabase
+      .from("waitlist_entries")
+      .insert({ name: entry.name, email: entry.email, role: entry.role })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return { ...data, createdAt: data.created_at } as WaitlistResponse;
   }
 
   async getWaitlistEntryByEmail(email: string): Promise<WaitlistResponse | undefined> {
-    const [entry] = await db.select().from(waitlistEntries).where(eq(waitlistEntries.email, email));
-    return entry;
+    const { data, error } = await supabase
+      .from("waitlist_entries")
+      .select()
+      .eq("email", email)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return undefined;
+    return { ...data, createdAt: data.created_at } as WaitlistResponse;
   }
 }
 
