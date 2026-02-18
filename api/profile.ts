@@ -1,0 +1,112 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
+
+const insertProfileSchema = z.object({
+  name: z.string().min(1),
+  job_title: z.string().min(1),
+  company_name: z.string().min(1),
+  company_description: z.string().min(1).max(130),
+  industry: z.enum(["FinTech", "HealthTech", "AI/ML", "SaaS B2B", "Consumer", "Marketplace", "DeepTech", "Other"]),
+  stage: z.enum(["Idea", "Pre-Product", "Pre-Revenue", "Early Revenue", "Scaling"]),
+  business_model: z.enum(["B2B", "B2C", "Marketplace", "SaaS", "D2C", "Other"]),
+  target_customer: z.string().min(1),
+  primary_problem: z.string().min(1),
+  goals: z.array(z.string()).min(1),
+  specific_ask: z.string().default(""),
+  location: z.string().min(1),
+  traction_range: z.string().optional(),
+  revenue_status: z.string().optional(),
+  fundraising_status: z.string().optional(),
+  capital_use: z.array(z.string()).default([]),
+});
+
+const updateProfileSchema = z.object({
+  team_size: z.string().optional(),
+  missing_roles: z.array(z.string()).optional(),
+  hiring_urgency: z.string().optional(),
+  partnership_why: z.array(z.string()).optional(),
+  ideal_partner_type: z.string().optional(),
+  partnership_maturity: z.string().optional(),
+  round_type: z.string().optional(),
+  investor_warmth: z.array(z.string()).optional(),
+  geography: z.string().optional(),
+  speed_preference: z.string().optional(),
+  risk_appetite: z.string().optional(),
+  existing_backers: z.string().optional(),
+  notable_customers: z.string().optional(),
+  deck_link: z.string().optional(),
+  website: z.string().optional(),
+  linkedin_url: z.string().optional(),
+}).partial();
+
+async function getUser(req: VercelRequest) {
+  const token = req.headers.authorization?.slice(7);
+  if (!token) return null;
+  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+  const { data: { user } } = await supabase.auth.getUser(token);
+  return user;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const user = await getUser(req);
+  if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+
+  if (req.method === "GET") {
+    const { data, error } = await supabase
+      .from("startup_profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!data) return res.status(404).json({ message: "Profile not found" });
+    return res.json(data);
+  }
+
+  if (req.method === "PUT") {
+    try {
+      const input = insertProfileSchema.parse(req.body);
+      const { data, error } = await supabase
+        .from("startup_profiles")
+        .upsert(
+          { user_id: user.id, email: user.email, ...input, onboarding_completed: true },
+          { onConflict: "user_id" }
+        )
+        .select()
+        .single();
+
+      if (error) return res.status(500).json({ message: error.message });
+      return res.status(201).json(data);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  if (req.method === "PATCH") {
+    try {
+      const patch = updateProfileSchema.parse(req.body);
+      const { data, error } = await supabase
+        .from("startup_profiles")
+        .update(patch)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) return res.status(500).json({ message: error.message });
+      return res.json(data);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  return res.status(405).json({ message: "Method not allowed" });
+}

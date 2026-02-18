@@ -1,6 +1,7 @@
 
 import { z } from 'zod';
-import { insertWaitlistSchema, waitlistEntries } from './schema';
+import { insertWaitlistSchema, waitlistEntries, insertProfileSchema, updateProfileSchema } from './schema';
+import type { StartupProfile } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -24,8 +25,24 @@ export const api = {
       responses: {
         201: z.custom<typeof waitlistEntries.$inferSelect>(),
         400: errorSchemas.validation,
-        409: errorSchemas.conflict, // Email already exists
+        409: errorSchemas.conflict,
       },
+    },
+  },
+  profile: {
+    get: {
+      method: 'GET' as const,
+      path: '/api/profile' as const,
+    },
+    upsert: {
+      method: 'PUT' as const,
+      path: '/api/profile' as const,
+      input: insertProfileSchema,
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/profile' as const,
+      input: updateProfileSchema,
     },
   },
 };

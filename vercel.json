@@ -4,6 +4,7 @@
   "installCommand": "npm install",
   "rewrites": [
     { "source": "/api/waitlist", "destination": "/api/waitlist" },
+    { "source": "/api/profile", "destination": "/api/profile" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
