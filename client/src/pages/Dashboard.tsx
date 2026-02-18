@@ -172,10 +172,14 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const qc = useQueryClient();
 
-  const { data: profile, isLoading } = useQuery<StartupProfile>({
+  const { data: profile, isLoading } = useQuery<StartupProfile | null>({
     queryKey: ["profile"],
-    queryFn: () =>
-      fetch("/api/profile", { headers: authHeaders(session!.access_token) }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch("/api/profile", { headers: authHeaders(session!.access_token) });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("Failed to fetch profile");
+      return r.json();
+    },
     enabled: !!session,
   });
 
@@ -217,12 +221,18 @@ export default function Dashboard() {
   const [website, setWebsite] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
-  if (isLoading || !profile) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
       </div>
     );
+  }
+
+  // No profile yet — send back to onboarding
+  if (!profile) {
+    setLocation("/onboard");
+    return null;
   }
 
   const score = matchScore(profile);
