@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Login() {
+  const { session, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If already logged in, redirect straight to dashboard
+  useEffect(() => {
+    if (!authLoading && session) {
+      setLocation("/dashboard");
+    }
+  }, [session, authLoading, setLocation]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

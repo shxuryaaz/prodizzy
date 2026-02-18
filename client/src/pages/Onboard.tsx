@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
 
 const TOTAL_STEPS = 8;
@@ -121,6 +122,11 @@ function SinglePill({
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function Onboard() {
+  const { session } = useAuth();
+  const isLoggedIn = !!session;
+  // When already logged in, skip the account-creation step (step 7)
+  const EFFECTIVE_STEPS = isLoggedIn ? TOTAL_STEPS - 1 : TOTAL_STEPS;
+
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -170,19 +176,27 @@ export default function Onboard() {
     setSubmitting(true);
     setError("");
 
-    // 1. Sign up
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
-    if (authError) {
-      setError(authError.message);
-      setSubmitting(false);
-      return;
-    }
+    let token: string;
 
-    const token = authData.session?.access_token;
-    if (!token) {
-      setError("Signup succeeded but no session. Check email confirmation settings in Supabase.");
-      setSubmitting(false);
-      return;
+    if (isLoggedIn) {
+      // Already authenticated — skip signUp, just save the profile
+      token = session!.access_token;
+    } else {
+      // 1. Sign up
+      const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) {
+        setError(authError.message);
+        setSubmitting(false);
+        return;
+      }
+
+      const t = authData.session?.access_token;
+      if (!t) {
+        setError("Signup succeeded but no session. Check email confirmation settings in Supabase.");
+        setSubmitting(false);
+        return;
+      }
+      token = t;
     }
 
     // 2. Save profile
@@ -224,7 +238,7 @@ export default function Onboard() {
     setLocation("/dashboard");
   }
 
-  const steps = [
+  const allSteps = [
     // Step 0: Identity
     <div key="0" className="space-y-5">
       <StepHeader
@@ -385,7 +399,7 @@ export default function Onboard() {
       </div>
     </div>,
 
-    // Step 7: Account
+    // Step 7: Account (only shown when NOT already logged in)
     <div key="7" className="space-y-5">
       <StepHeader
         step={7}
@@ -398,13 +412,16 @@ export default function Onboard() {
     </div>,
   ];
 
+  // When logged in, skip the account-creation step
+  const steps = isLoggedIn ? allSteps.slice(0, 7) : allSteps;
+
   return (
     <div className="min-h-screen bg-black flex flex-col">
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-white/5 z-50">
         <motion.div
           className="h-full bg-white"
-          animate={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
+          animate={{ width: `${((step + 1) / EFFECTIVE_STEPS) * 100}%` }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
@@ -416,7 +433,7 @@ export default function Onboard() {
           <span className="text-white font-semibold tracking-tight">Prodizzy</span>
         </button>
         <span className="text-white/25 text-xs tabular-nums">
-          {step + 1} / {TOTAL_STEPS}
+          {step + 1} / {EFFECTIVE_STEPS}
         </span>
       </div>
 
@@ -440,6 +457,9 @@ export default function Onboard() {
 
       {/* Bottom nav */}
       <div className="fixed bottom-0 left-0 right-0 px-6 pb-8 pt-4 bg-gradient-to-t from-black via-black/90 to-transparent">
+        {error && isLoggedIn && (
+          <p className="max-w-lg mx-auto text-red-400 text-sm mb-3">{error}</p>
+        )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
           {step > 0 && (
             <button
@@ -449,7 +469,7 @@ export default function Onboard() {
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          {step < TOTAL_STEPS - 1 ? (
+          {step < EFFECTIVE_STEPS - 1 ? (
             <button
               onClick={() => { if (canProceed()) go(step + 1); }}
               disabled={!canProceed()}
@@ -463,7 +483,10 @@ export default function Onboard() {
               disabled={!canProceed() || submitting}
               className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
             >
-              {submitting ? "Creating your account…" : "Create account & go to dashboard"}
+              {submitting
+                ? (isLoggedIn ? "Saving…" : "Creating your account…")
+                : (isLoggedIn ? "Save & go to dashboard" : "Create account & go to dashboard")
+              }
             </button>
           )}
         </div>
