@@ -40,19 +40,19 @@ const updateProfileSchema = z.object({
   linkedin_url: z.string().optional(),
 }).partial();
 
-async function getUser(req: VercelRequest) {
-  const token = req.headers.authorization?.slice(7);
-  if (!token) return null;
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
-  const { data: { user } } = await supabase.auth.getUser(token);
-  return user;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const user = await getUser(req);
+  const token = req.headers.authorization?.slice(7);
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  // Verify the JWT and get the user
+  const authClient = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+  const { data: { user } } = await authClient.auth.getUser(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+  // DB client carries the user's JWT so RLS auth.uid() resolves correctly
+  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
 
   if (req.method === "GET") {
     const { data, error } = await supabase

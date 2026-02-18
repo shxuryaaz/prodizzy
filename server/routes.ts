@@ -7,12 +7,19 @@ import { api } from "@shared/routes";
 import { insertProfileSchema, updateProfileSchema } from "@shared/schema";
 import { z } from "zod";
 
-async function getUserFromRequest(req: any): Promise<{ id: string; email: string } | null> {
+async function getUserFromRequest(req: any): Promise<{ id: string; email: string; token: string } | null> {
   const token = req.headers.authorization?.slice(7);
   if (!token) return null;
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
-  const { data: { user } } = await supabase.auth.getUser(token);
-  return user ? { id: user.id, email: user.email! } : null;
+  const authClient = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+  const { data: { user } } = await authClient.auth.getUser(token);
+  return user ? { id: user.id, email: user.email!, token } : null;
+}
+
+// DB client that carries the user's JWT so RLS auth.uid() resolves correctly
+function dbClient(token: string) {
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
 }
 
 export async function registerRoutes(
@@ -47,9 +54,15 @@ export async function registerRoutes(
     const user = await getUserFromRequest(req);
     if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-    const profile = await storage.getProfileByUserId(user.id);
-    if (!profile) return res.status(404).json({ message: "Profile not found" });
-    return res.json(profile);
+    const { data, error } = await dbClient(user.token)
+      .from("startup_profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!data) return res.status(404).json({ message: "Profile not found" });
+    return res.json(data);
   });
 
   // PUT /api/profile — full upsert after onboarding
@@ -59,8 +72,17 @@ export async function registerRoutes(
 
     try {
       const input = insertProfileSchema.parse(req.body);
-      const profile = await storage.upsertProfile(user.id, user.email, input);
-      return res.status(201).json(profile);
+      const { data, error } = await dbClient(user.token)
+        .from("startup_profiles")
+        .upsert(
+          { user_id: user.id, email: user.email, ...input, onboarding_completed: true },
+          { onConflict: "user_id" }
+        )
+        .select()
+        .single();
+
+      if (error) return res.status(500).json({ message: error.message });
+      return res.status(201).json(data);
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message, field: err.errors[0].path.join('.') });
@@ -76,8 +98,15 @@ export async function registerRoutes(
 
     try {
       const patch = updateProfileSchema.parse(req.body);
-      const profile = await storage.patchProfile(user.id, patch);
-      return res.json(profile);
+      const { data, error } = await dbClient(user.token)
+        .from("startup_profiles")
+        .update(patch)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) return res.status(500).json({ message: error.message });
+      return res.json(data);
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
