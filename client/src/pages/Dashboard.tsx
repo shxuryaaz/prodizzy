@@ -172,6 +172,16 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const qc = useQueryClient();
 
+  const { data: connections } = useQuery<any[]>({
+    queryKey: ["connections"],
+    queryFn: async () => {
+      const r = await fetch("/api/connections", { headers: authHeaders(session!.access_token) });
+      if (!r.ok) return [];
+      return r.json();
+    },
+    enabled: !!session,
+  });
+
   const { data: profile, isLoading } = useQuery<StartupProfile | null>({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -585,11 +595,31 @@ export default function Dashboard() {
             saving={patchMutation.isPending}
           />
 
-          {/* ── Activity / Matches (full width) ───────────────────────────────── */}
+          {/* ── Activity / Connections (full width) ───────────────────────────── */}
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
-              <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">Activity</h2>
-              <p className="text-white/25 text-sm">Your intros and follow-ups will appear here.</p>
+              <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">
+                Investor Interest {connections && connections.length > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold">{connections.length}</span>
+                )}
+              </h2>
+              {(!connections || connections.length === 0) ? (
+                <p className="text-white/25 text-sm">Investor interest requests will appear here once your profile is approved.</p>
+              ) : (
+                <div className="space-y-3">
+                  {connections.map((c: any) => (
+                    <div key={c.id} className="border border-white/8 rounded-xl p-4 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-white/80 text-sm font-medium">{c.investor?.name ?? "Investor"}</p>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 capitalize">{c.status}</span>
+                      </div>
+                      {c.investor?.firm_name && <p className="text-white/40 text-xs">{c.investor.firm_name} · {c.investor.investor_type} · {c.investor.check_size}</p>}
+                      {c.message && <p className="text-white/50 text-xs italic">"{c.message}"</p>}
+                      <p className="text-white/25 text-xs">Our team will facilitate this intro.</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
               <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">Matches</h2>

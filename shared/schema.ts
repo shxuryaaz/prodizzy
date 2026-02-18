@@ -3,16 +3,15 @@ import { pgTable, text, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// === TABLE DEFINITIONS ===
+// === WAITLIST ===
 export const waitlistEntries = pgTable("waitlist_entries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  role: varchar("role", { length: 50 }).notNull(), // Founder, Student, Operator, etc.
+  role: varchar("role", { length: 50 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// === BASE SCHEMAS ===
 export const insertWaitlistSchema = createInsertSchema(waitlistEntries).omit({
   id: true,
   createdAt: true
@@ -21,44 +20,28 @@ export const insertWaitlistSchema = createInsertSchema(waitlistEntries).omit({
   role: z.enum(["Founder", "Student", "Operator", "Freelancer", "Investor", "Agency", "Other"]),
 });
 
-// === EXPLICIT API CONTRACT TYPES ===
 export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
 export type InsertWaitlistEntry = z.infer<typeof insertWaitlistSchema>;
-
-// Request/Response types
 export type CreateWaitlistRequest = InsertWaitlistEntry;
 export type WaitlistResponse = WaitlistEntry;
 
 // =============================================
-// STARTUP PROFILE SCHEMAS + TYPES
+// STARTUP PROFILE
 // =============================================
 
 export const insertProfileSchema = z.object({
-  // Step 0: Identity
   name: z.string().min(1, "Name is required"),
   job_title: z.string().min(1, "Job title is required"),
-
-  // Step 1: Company
   company_name: z.string().min(1, "Company name is required"),
   company_description: z.string().min(1, "Description required").max(130, "Keep it under 130 characters"),
-
-  // Step 2: Category
   industry: z.enum(["FinTech", "HealthTech", "AI/ML", "SaaS B2B", "Consumer", "Marketplace", "DeepTech", "Other"]),
   stage: z.enum(["Idea", "Pre-Product", "Pre-Revenue", "Early Revenue", "Scaling"]),
   business_model: z.enum(["B2B", "B2C", "Marketplace", "SaaS", "D2C", "Other"]),
-
-  // Step 3: Clarity
   target_customer: z.string().min(1, "Required"),
   primary_problem: z.string().min(1, "Required"),
-
-  // Step 4: Goals
   goals: z.array(z.enum(["Investors", "Customers", "Co-founders", "Partners", "Enterprise Clients", "Mentors", "Talent"])).min(1, "Select at least one goal"),
   specific_ask: z.string().default(""),
-
-  // Step 5: Location
   location: z.string().min(1, "Location required"),
-
-  // Step 6: Traction
   traction_range: z.enum(["0", "<100", "100-1k", "1k-10k", "10k+"]).optional(),
   revenue_status: z.enum(["Pre-revenue", "Early revenue", "Scaling revenue"]).optional(),
   fundraising_status: z.enum(["Not raising", "Planning", "Actively raising", "Closed recently"]).optional(),
@@ -91,9 +74,9 @@ export type StartupProfile = InsertProfile & {
   id: string;
   user_id: string;
   email: string;
+  approved: boolean;
   onboarding_completed: boolean;
   created_at: string;
-  // Progressive profiling
   team_size?: string | null;
   missing_roles?: string[] | null;
   hiring_urgency?: string | null;
@@ -110,4 +93,57 @@ export type StartupProfile = InsertProfile & {
   deck_link?: string | null;
   website?: string | null;
   linkedin_url?: string | null;
+};
+
+// Sanitized version shown to investors (no contact vectors)
+export type PublicStartupProfile = Omit<StartupProfile, "email" | "name" | "linkedin_url" | "deck_link" | "website"> & {
+  founder_label: string;
+};
+
+// =============================================
+// INVESTOR PROFILE
+// =============================================
+
+export const insertInvestorSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  firm_name: z.string().optional(),
+  investor_type: z.enum(["VC", "Angel", "Family Office", "Strategic", "Other"]),
+  check_size: z.enum(["<$50k", "$50k-$250k", "$250k-$1M", "$1M-$5M", "$5M+"]),
+  sectors: z.array(z.string()).min(1, "Select at least one sector"),
+  stages: z.array(z.string()).min(1, "Select at least one stage"),
+  geography: z.string().default(""),
+  thesis: z.string().optional(),
+});
+
+export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
+
+export type InvestorProfile = InsertInvestor & {
+  id: string;
+  user_id: string;
+  email: string;
+  onboarding_completed: boolean;
+  created_at: string;
+};
+
+// =============================================
+// CONNECTION REQUESTS
+// =============================================
+
+export const insertConnectionSchema = z.object({
+  startup_id: z.string().uuid(),
+  message: z.string().optional(),
+});
+
+export type InsertConnection = z.infer<typeof insertConnectionSchema>;
+
+export type ConnectionRequest = {
+  id: string;
+  startup_id: string;
+  investor_id: string;
+  message: string | null;
+  status: "pending" | "accepted" | "declined";
+  created_at: string;
+  // joined fields
+  investor?: Pick<InvestorProfile, "name" | "firm_name" | "investor_type" | "check_size">;
+  startup?: Pick<StartupProfile, "company_name" | "industry" | "stage">;
 };

@@ -5,6 +5,10 @@
   "rewrites": [
     { "source": "/api/waitlist", "destination": "/api/waitlist" },
     { "source": "/api/profile", "destination": "/api/profile" },
+    { "source": "/api/admin", "destination": "/api/admin" },
+    { "source": "/api/investor", "destination": "/api/investor" },
+    { "source": "/api/discover", "destination": "/api/discover" },
+    { "source": "/api/connections", "destination": "/api/connections" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -175,7 +175,16 @@ export default function Home() {
                 className="h-[46px] px-7 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-88"
                 style={{ background: RED, boxShadow: `0 0 28px -6px rgba(230,57,70,0.5)` }}
               >
-                Build your profile →
+                I'm a founder →
+              </button>
+              <button
+                onClick={() => setLocation("/investor-onboard")}
+                className="h-[46px] px-6 rounded-xl text-[14px] font-medium transition-colors duration-200"
+                style={{ color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.8)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+              >
+                I'm an investor →
               </button>
               <button
                 onClick={() => setLocation("/login")}
@@ -277,15 +286,26 @@ export default function Home() {
               <br />network to work?
             </h2>
             <p className="text-[15px] mb-10" style={{ color: "rgba(255,255,255,0.38)" }}>
-              Build your startup profile in 3 minutes.
+              Founders build a profile. Investors browse and connect — all through us.
             </p>
-            <button
-              onClick={() => setLocation("/onboard")}
-              className="h-[50px] px-9 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-88 mb-5"
-              style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
-            >
-              Start your profile →
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+              <button
+                onClick={() => setLocation("/onboard")}
+                className="h-[50px] px-9 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-88"
+                style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
+              >
+                I'm a founder →
+              </button>
+              <button
+                onClick={() => setLocation("/investor-onboard")}
+                className="h-[50px] px-8 rounded-xl text-[14px] font-medium transition-colors duration-200"
+                style={{ color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.85)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+              >
+                I'm an investor →
+              </button>
+            </div>
             <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.25)" }}>
               Already have an account?{" "}
               <button
