@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
@@ -123,6 +124,7 @@ function SinglePill({
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function Onboard() {
   const { session } = useAuth();
+  const qc = useQueryClient();
   const isLoggedIn = !!session;
   // When already logged in, skip the account-creation step (step 7)
   const EFFECTIVE_STEPS = isLoggedIn ? TOTAL_STEPS - 1 : TOTAL_STEPS;
@@ -152,6 +154,26 @@ export default function Onboard() {
   const [capitalUse, setCapitalUse] = useState<string[]>([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // If already logged in with a completed profile, send to dashboard (e.g. user landed on /onboard again)
+  const { data: existingProfile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      if (!session?.access_token) return null;
+      const r = await fetch("/api/profile", {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+      });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("Failed to fetch profile");
+      return r.json();
+    },
+    enabled: !!session,
+  });
+  useEffect(() => {
+    if (existingProfile?.onboarding_completed) {
+      setLocation("/dashboard");
+    }
+  }, [existingProfile, setLocation]);
 
   function go(next: number) {
     setDir(next > step ? 1 : -1);
@@ -258,6 +280,8 @@ export default function Onboard() {
 
     const verifiedProfile = await verifyRes.json();
     console.log("Profile verified:", verifiedProfile);
+    // Seed the profile cache so Dashboard sees the profile immediately (avoids race/404)
+    qc.setQueryData(["profile"], verifiedProfile);
     setLocation("/dashboard");
   }
 

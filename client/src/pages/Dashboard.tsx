@@ -182,7 +182,7 @@ export default function Dashboard() {
     enabled: !!session,
   });
 
-  const { data: profile, isLoading } = useQuery<StartupProfile | null>({
+  const { data: profile, isLoading, isFetched } = useQuery<StartupProfile | null>({
     queryKey: ["profile"],
     queryFn: async () => {
       const r = await fetch("/api/profile", { headers: authHeaders(session!.access_token) });
@@ -231,8 +231,10 @@ export default function Dashboard() {
   const [website, setWebsite] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
-  // Wait for both auth and profile to load before deciding
-  if (authLoading || isLoading) {
+  // Wait for auth, then for profile query to actually run and complete (don't redirect
+  // when query is still disabled or loading, or we'd send completed users back to onboard)
+  const profileNotReady = !!session && !isFetched;
+  if (authLoading || isLoading || profileNotReady) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
@@ -240,8 +242,8 @@ export default function Dashboard() {
     );
   }
 
-  // No profile yet — send back to onboarding
-  if (!profile) {
+  // Only redirect to onboarding when we've actually fetched and confirmed no profile
+  if (isFetched && profile === null) {
     setLocation("/onboard");
     return null;
   }
