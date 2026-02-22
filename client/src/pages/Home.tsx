@@ -1,16 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { WebGLMeshBackground } from "@/components/WebGLMeshBackground";
 
 const RED = "#E63946";
 
-const TYPING_LINE_1 = "You already know the right people.";
-const TYPING_LINE_2 = "You're just not doing anything with that.";
-const CHAR_DELAY_MS = 45;
-const PAUSE_BETWEEN_LINES_MS = 400;
-
-// Scroll-in variants for sections
 const scrollReveal = {
   hidden: { opacity: 0, y: 36 },
   visible: (i = 0) => ({
@@ -19,16 +13,12 @@ const scrollReveal = {
     transition: { duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
   }),
 };
+
 const scrollRevealViewport = { once: true, margin: "-80px", amount: 0.2 };
 
 export default function Home() {
   const [, setLocation] = useLocation();
-
-  const typingSectionRef = useRef<HTMLElement>(null);
-  const [typingStarted, setTypingStarted] = useState(false);
-  const [typedLine1, setTypedLine1] = useState("");
-  const [typedLine2, setTypedLine2] = useState("");
-  const [typingComplete, setTypingComplete] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
 
   // Always start at top
   useEffect(() => {
@@ -37,61 +27,13 @@ export default function Home() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Start typing when divider section enters viewport
-  useEffect(() => {
-    const el = typingSectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) setTypingStarted((s) => (s ? s : true));
-      },
-      { threshold: 0.3 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  // Run typewriter once triggered
-  useEffect(() => {
-    if (!typingStarted) return;
-    let cancelled = false;
-    let t1: ReturnType<typeof setTimeout> | null = null;
-    let t2: ReturnType<typeof setTimeout> | null = null;
-
-    let i = 0;
-    const runLine1 = () => {
-      if (cancelled || i >= TYPING_LINE_1.length) {
-        t2 = setTimeout(() => runLine2(), PAUSE_BETWEEN_LINES_MS);
-        return;
-      }
-      setTypedLine1(TYPING_LINE_1.slice(0, i + 1));
-      i += 1;
-      t1 = setTimeout(runLine1, CHAR_DELAY_MS);
-    };
-    let j = 0;
-    const runLine2 = () => {
-      if (cancelled) return;
-      if (j >= TYPING_LINE_2.length) {
-        setTypingComplete(true);
-        return;
-      }
-      setTypedLine2(TYPING_LINE_2.slice(0, j + 1));
-      j += 1;
-      t2 = setTimeout(runLine2, CHAR_DELAY_MS);
-    };
-
-    runLine1();
-    return () => {
-      cancelled = true;
-      if (t1) clearTimeout(t1);
-      if (t2) clearTimeout(t2);
-    };
-  }, [typingStarted]);
+  const scrollToHow = () => {
+    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: "#08090A", fontFamily: "'Inter', sans-serif" }}>
       <WebGLMeshBackground />
-      {/* Ambient top glow */}
       <div
         className="fixed inset-x-0 top-0 h-[520px] pointer-events-none z-0"
         style={{ background: `radial-gradient(ellipse 60% 50% at 50% -5%, rgba(230,57,70,0.11) 0%, transparent 70%)` }}
@@ -107,171 +49,225 @@ export default function Home() {
             background: "rgba(8,9,10,0.8)",
           }}
         >
-          <div className="mx-auto px-6 h-[58px] flex items-center justify-between max-w-4xl">
+          <div className="mx-auto px-6 h-[58px] flex items-center justify-between max-w-5xl">
             <div className="flex items-center gap-2.5">
               <img src="/logo.png" alt="Prodizzy" className="w-6 h-6 object-contain" />
               <span className="text-[14px] font-semibold tracking-tight">Prodizzy</span>
             </div>
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => setLocation("/login")}
-                className="text-[13px] font-medium transition-colors duration-200"
-                style={{ color: "rgba(255,255,255,0.35)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.35)")}
-              >
-                Sign in
-              </button>
-              <button
-                onClick={() => setLocation("/onboard")}
-                className="text-[13px] font-medium transition-colors duration-200"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
-              >
-                Get access →
-              </button>
-            </div>
+            <button
+              onClick={() => setShowRoleModal(true)}
+              className="h-[38px] px-6 rounded-lg font-medium text-[13px] text-white transition-all hover:opacity-90"
+              style={{ background: RED, boxShadow: `0 0 20px -6px rgba(230,57,70,0.4)` }}
+            >
+              Join now
+            </button>
           </div>
         </header>
 
         {/* ── HERO ── */}
         <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-[58px]">
           <motion.div
-            className="max-w-2xl"
+            className="max-w-3xl"
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
           >
-            {/* Headline */}
             <motion.h1
               variants={{ hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
-              className="font-bold leading-[1.06] tracking-[-0.035em] mb-6"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2.6rem, 6.5vw, 4.75rem)" }}
+              className="font-bold leading-[1.08] tracking-[-0.035em] mb-6"
+              style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2.8rem, 7vw, 5.2rem)" }}
             >
-              Your connections
+              Turn Intent into
               <br />
-              aren't working for you.
-              <br />
-              <span style={{ color: RED }}>Yet.</span>
+              <span style={{ color: RED }}>Outcomes</span>
             </motion.h1>
 
-            {/* Sub */}
             <motion.p
               variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } }}
-              className="text-[16px] sm:text-[17px] leading-relaxed mb-10 max-w-md mx-auto"
-              style={{ color: "rgba(255,255,255,0.40)" }}
+              className="text-[17px] sm:text-[18px] leading-relaxed mb-10 max-w-2xl mx-auto"
+              style={{ color: "rgba(255,255,255,0.45)" }}
             >
-              Prodizzy turns your scattered network into warm intros and real outcomes automatically.
+              Stop relying on random connections. Get matched with the right people for hiring, partnerships, growth, and fundraising.
             </motion.p>
 
-            {/* CTA */}
             <motion.div
               variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}
               className="flex flex-col sm:flex-row items-center justify-center gap-3"
             >
               <button
-                onClick={() => setLocation("/onboard")}
-                className="h-[46px] px-7 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-88"
-                style={{ background: RED, boxShadow: `0 0 28px -6px rgba(230,57,70,0.5)` }}
+                onClick={() => setShowRoleModal(true)}
+                className="h-[50px] px-9 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-90"
+                style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
               >
-                I'm a founder →
+                Get Started →
               </button>
               <button
-                onClick={() => setLocation("/investor-onboard")}
-                className="h-[46px] px-6 rounded-xl text-[14px] font-medium transition-colors duration-200"
+                onClick={scrollToHow}
+                className="h-[50px] px-8 rounded-xl text-[14px] font-medium transition-colors duration-200"
                 style={{ color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.8)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
               >
-                I'm an investor →
-              </button>
-              <button
-                onClick={() => setLocation("/login")}
-                className="h-[46px] px-6 rounded-xl text-[14px] font-medium transition-colors duration-200"
-                style={{ color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.09)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.7)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.35)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; }}
-              >
-                Sign in
+                How it works
               </button>
             </motion.div>
           </motion.div>
         </section>
 
-        {/* ── DIVIDER STATEMENT ── */}
+        {/* ── HOW IT WORKS ── */}
         <motion.section
-          ref={typingSectionRef}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          viewport={{ once: true, margin: "-80px", amount: 0.2 }}
-          className="px-6 py-20"
+          id="how-it-works"
+          className="px-6 py-24"
           style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
-        >
-          <p
-            className="max-w-2xl mx-auto text-center text-2xl sm:text-3xl font-semibold leading-snug tracking-[-0.02em] min-h-[4.5em] sm:min-h-[5rem] flex flex-col items-center justify-center"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "rgba(255,255,255,0.65)" }}
-          >
-            <span>
-              {typedLine1}
-              {!typingComplete && typedLine2.length === 0 && (
-                <span className="inline-block w-0.5 h-[1em] align-baseline ml-0.5 bg-white/80 animate-pulse" aria-hidden />
-              )}
-            </span>
-            {typedLine2.length > 0 && (
-              <>
-                <br />
-                <span style={{ color: "#fff" }}>
-                  {typedLine2}
-                  {!typingComplete && (
-                    <span className="inline-block w-0.5 h-[1em] align-baseline ml-0.5 bg-white/80 animate-pulse" aria-hidden />
-                  )}
-                </span>
-              </>
-            )}
-          </p>
-        </motion.section>
-
-        {/* ── THREE STATS ── */}
-        <motion.section
-          className="px-6 pb-24"
           initial="hidden"
           whileInView="visible"
           viewport={scrollRevealViewport}
-          variants={{ visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
+          variants={{ visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } } }}
         >
-          <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ background: "rgba(255,255,255,0.06)", borderRadius: "16px", overflow: "hidden" }}>
+          <motion.h2
+            variants={scrollReveal}
+            className="text-3xl sm:text-4xl font-bold text-center mb-16 tracking-[-0.025em]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            How it works
+          </motion.h2>
+
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { stat: "87%", label: "of deals come through warm intros" },
-              { stat: "10+", label: "apps your network is scattered across" },
-              { stat: "0", label: "of your follow-ups happen automatically" },
+              {
+                step: "1",
+                title: "Define your needs",
+                desc: "Tell us your startup stage and current needs — hiring, partnerships, growth, or fundraising.",
+              },
+              {
+                step: "2",
+                title: "Get matched",
+                desc: "We connect you with the right people and collaborators actively looking for startups like yours.",
+              },
+              {
+                step: "3",
+                title: "Track & automate",
+                desc: "Track conversations, get insights, and automate follow-ups — all in one place.",
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
                 variants={scrollReveal}
                 custom={i}
-                className="px-7 py-8"
-                style={{ background: "#08090A" }}
+                className="px-6 py-7 rounded-2xl"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
                 <div
-                  className="text-4xl font-bold mb-2 tracking-tight"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: RED }}
+                  className="text-5xl font-bold mb-4 tracking-tight"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: RED, opacity: 0.3 }}
                 >
-                  {item.stat}
+                  {item.step}
                 </div>
-                <div className="text-[13px] leading-snug" style={{ color: "rgba(255,255,255,0.38)" }}>
-                  {item.label}
-                </div>
+                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                <p className="text-[14px] leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
         </motion.section>
 
-        {/* ── CTA SECTION ── */}
+        {/* ── ROLE CARDS ── */}
+        <motion.section
+          className="px-6 py-24"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollRevealViewport}
+          variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } }}
+        >
+          <motion.h2
+            variants={scrollReveal}
+            className="text-3xl sm:text-4xl font-bold text-center mb-4 tracking-[-0.025em]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            Who is Prodizzy for?
+          </motion.h2>
+          <motion.p
+            variants={scrollReveal}
+            custom={1}
+            className="text-center text-[15px] mb-16 max-w-xl mx-auto"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            Whether you're building, investing, or looking for opportunities — we have a place for you.
+          </motion.p>
+
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Join as Startup",
+                desc: "Build and scale your startup with the right people, partners, and capital. For founders from idea to growth stage.",
+                action: () => setLocation("/onboard"),
+              },
+              {
+                title: "Join as Partner",
+                desc: "Access high-intent startups actively looking for your expertise. For agencies, service providers, investors, and institutional firms.",
+                action: () => setLocation("/partner-onboard"),
+              },
+              {
+                title: "Join as Individual",
+                desc: "Receive curated opportunities based on your profile and preferences. For job seekers, freelancers, creators, and community admins.",
+                action: () => setLocation("/individual-onboard"),
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={i}
+                variants={scrollReveal}
+                custom={i + 2}
+                className="px-7 py-8 rounded-2xl cursor-pointer transition-all group"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}
+                onClick={card.action}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(230,57,70,0.3)";
+                  e.currentTarget.style.background = "rgba(230,57,70,0.04)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                }}
+              >
+                <h3 className="text-xl font-semibold mb-3 group-hover:text-[#E63946] transition-colors">{card.title}</h3>
+                <p className="text-[14px] leading-relaxed mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  {card.desc}
+                </p>
+                <span
+                  className="text-[13px] font-medium inline-flex items-center gap-1.5 transition-colors"
+                  style={{ color: "rgba(255,255,255,0.35)" }}
+                >
+                  Get started <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* ── VALUE STRIP ── */}
+        <motion.section
+          className="px-6 py-16"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)", borderBottom: "1px solid rgba(255,255,255,0.055)" }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <p
+            className="text-center text-2xl sm:text-3xl font-semibold tracking-[-0.02em]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "rgba(255,255,255,0.7)" }}
+          >
+            Built for <span style={{ color: RED }}>high-intent networking</span>,
+            <br />
+            not passive browsing.
+          </p>
+        </motion.section>
+
+        {/* ── FINAL CTA ── */}
         <motion.section
           className="px-6 py-28"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -282,31 +278,21 @@ export default function Home() {
               className="text-3xl sm:text-4xl font-bold mb-4 tracking-[-0.025em]"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Ready to put your
-              <br />network to work?
+              Start building with the
+              <br />right people, not just
+              <br />more connections.
             </h2>
             <p className="text-[15px] mb-10" style={{ color: "rgba(255,255,255,0.38)" }}>
-              Founders build a profile. Investors browse and connect — all through us.
+              Join Prodizzy today and turn your intent into real outcomes.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-              <button
-                onClick={() => setLocation("/onboard")}
-                className="h-[50px] px-9 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-88"
-                style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
-              >
-                I'm a founder →
-              </button>
-              <button
-                onClick={() => setLocation("/investor-onboard")}
-                className="h-[50px] px-8 rounded-xl text-[14px] font-medium transition-colors duration-200"
-                style={{ color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.85)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
-              >
-                I'm an investor →
-              </button>
-            </div>
-            <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+            <button
+              onClick={() => setShowRoleModal(true)}
+              className="h-[52px] px-10 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-90"
+              style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
+            >
+              Join now →
+            </button>
+            <p className="text-[13px] mt-6" style={{ color: "rgba(255,255,255,0.25)" }}>
               Already have an account?{" "}
               <button
                 onClick={() => setLocation("/login")}
@@ -341,22 +327,78 @@ export default function Home() {
               © 2026 Prodizzy, Inc. All rights reserved.
             </p>
             <div className="flex gap-5">
-              {["Twitter", "LinkedIn", "Privacy"].map((l) => (
-                <a
-                  key={l}
-                  href="#"
-                  className="text-[12px] transition-colors"
-                  style={{ color: "rgba(255,255,255,0.25)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.25)")}
-                >
-                  {l}
-                </a>
-              ))}
+              <a href="#" className="text-[12px] transition-colors" style={{ color: "rgba(255,255,255,0.25)" }}>
+                Contact
+              </a>
+              <a href="#" className="text-[12px] transition-colors" style={{ color: "rgba(255,255,255,0.25)" }}>
+                Privacy
+              </a>
             </div>
           </div>
         </motion.footer>
       </div>
+
+      {/* ── ROLE SELECTION MODAL ── */}
+      {showRoleModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+          onClick={() => setShowRoleModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-3xl rounded-2xl p-8"
+            style={{ background: "#0D0E0F", border: "1px solid rgba(255,255,255,0.1)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              className="text-2xl font-bold mb-2 text-center"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              Choose your role
+            </h2>
+            <p className="text-center text-[14px] mb-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Select the option that best describes you
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {[
+                { title: "Startup", desc: "I'm a founder", action: () => setLocation("/onboard") },
+                { title: "Partner", desc: "Agency, investor, or firm", action: () => setLocation("/partner-onboard") },
+                { title: "Individual", desc: "Job seeker or freelancer", action: () => setLocation("/individual-onboard") },
+              ].map((role, i) => (
+                <button
+                  key={i}
+                  onClick={role.action}
+                  className="px-6 py-6 rounded-xl text-left transition-all"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(230,57,70,0.4)";
+                    e.currentTarget.style.background = "rgba(230,57,70,0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  }}
+                >
+                  <h3 className="text-lg font-semibold mb-1">{role.title}</h3>
+                  <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.4)" }}>{role.desc}</p>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowRoleModal(false)}
+              className="w-full py-3 rounded-lg text-[14px] font-medium transition-colors"
+              style={{ color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

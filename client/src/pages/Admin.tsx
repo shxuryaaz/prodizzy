@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { LogOut, Check, X, ChevronDown, ChevronUp } from "lucide-react";
-import type { StartupProfile } from "@shared/schema";
+import type { StartupProfile, PartnerProfile, IndividualProfile } from "@shared/schema";
+
+type ProfileType = "startup" | "partner" | "individual";
 
 function authHeaders(token: string) {
   return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
@@ -15,17 +17,17 @@ function Tag({ label }: { label: string }) {
   return <span className="px-2 py-0.5 rounded-full text-xs border bg-white/5 text-white/50 border-white/10">{label}</span>;
 }
 
-function ProfileRow({ profile, token }: { profile: StartupProfile; token: string }) {
+function StartupProfileRow({ profile, token, profileType }: { profile: StartupProfile; token: string; profileType: ProfileType }) {
   const [expanded, setExpanded] = useState(false);
   const qc = useQueryClient();
 
   const approveMutation = useMutation({
-    mutationFn: (approved: boolean) => fetch(`/api/admin?id=${profile.id}`, {
+    mutationFn: (approved: boolean) => fetch(`/api/admin?id=${profile.id}&type=${profileType}`, {
       method: "PATCH",
       headers: authHeaders(token),
       body: JSON.stringify({ approved }),
     }).then(r => r.json()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-profiles"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-profiles", profileType] }),
   });
 
   return (
@@ -121,14 +123,184 @@ function ProfileRow({ profile, token }: { profile: StartupProfile; token: string
   );
 }
 
+function PartnerProfileRow({ profile, token, profileType }: { profile: PartnerProfile; token: string; profileType: ProfileType }) {
+  const [expanded, setExpanded] = useState(false);
+  const qc = useQueryClient();
+
+  const approveMutation = useMutation({
+    mutationFn: (approved: boolean) => fetch(`/api/admin?id=${profile.id}&type=${profileType}`, {
+      method: "PATCH",
+      headers: authHeaders(token),
+      body: JSON.stringify({ approved }),
+    }).then(r => r.json()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-profiles", profileType] }),
+  });
+
+  return (
+    <div className={`border rounded-xl transition-colors ${profile.approved ? "border-green-500/20 bg-green-500/5" : "border-white/8 bg-white/[0.02]"}`}>
+      <div className="px-5 py-4 flex items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-white font-medium text-sm">{profile.company_name}</span>
+            <Tag label={profile.partner_type} />
+            {profile.approved
+              ? <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/15 text-green-400 border border-green-500/20">Approved</span>
+              : <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">Pending</span>
+            }
+          </div>
+          <p className="text-white/35 text-xs mt-0.5 truncate">{profile.full_name} · {profile.email} · {profile.phone}</p>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {!profile.approved ? (
+            <button onClick={() => approveMutation.mutate(true)} disabled={approveMutation.isPending}
+              className="flex items-center gap-1 bg-green-500/15 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-500/25 transition-colors disabled:opacity-50">
+              <Check className="w-3 h-3" /> Approve
+            </button>
+          ) : (
+            <button onClick={() => approveMutation.mutate(false)} disabled={approveMutation.isPending}
+              className="flex items-center gap-1 bg-red-500/15 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-500/25 transition-colors disabled:opacity-50">
+              <X className="w-3 h-3" /> Revoke
+            </button>
+          )}
+          <button onClick={() => setExpanded(e => !e)} className="text-white/30 hover:text-white/60 transition-colors p-1">
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }} className="overflow-hidden">
+            <div className="px-5 pb-5 border-t border-white/6 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Services</p>
+                <p className="text-white/65">{profile.services_offered?.join(", ") || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Industries</p>
+                <p className="text-white/65">{profile.industries_served?.join(", ") || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Team size</p>
+                <p className="text-white/65">{profile.team_size || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Experience</p>
+                <p className="text-white/65">{profile.years_experience || "—"}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-2">Contact</p>
+                <div className="flex flex-wrap gap-4 text-xs text-white/50">
+                  <span>Email: <span className="text-white/75">{profile.email}</span></span>
+                  <span>Phone: <span className="text-white/75">{profile.phone}</span></span>
+                  {profile.website && <a href={profile.website} target="_blank" rel="noreferrer" className="text-white/75 hover:underline">Website</a>}
+                  {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">LinkedIn</a>}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function IndividualProfileRow({ profile, token, profileType }: { profile: IndividualProfile; token: string; profileType: ProfileType }) {
+  const [expanded, setExpanded] = useState(false);
+  const qc = useQueryClient();
+
+  const approveMutation = useMutation({
+    mutationFn: (approved: boolean) => fetch(`/api/admin?id=${profile.id}&type=${profileType}`, {
+      method: "PATCH",
+      headers: authHeaders(token),
+      body: JSON.stringify({ approved }),
+    }).then(r => r.json()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-profiles", profileType] }),
+  });
+
+  return (
+    <div className={`border rounded-xl transition-colors ${profile.approved ? "border-green-500/20 bg-green-500/5" : "border-white/8 bg-white/[0.02]"}`}>
+      <div className="px-5 py-4 flex items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-white font-medium text-sm">{profile.full_name}</span>
+            <Tag label={profile.profile_type} />
+            {profile.approved
+              ? <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/15 text-green-400 border border-green-500/20">Approved</span>
+              : <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">Pending</span>
+            }
+          </div>
+          <p className="text-white/35 text-xs mt-0.5 truncate">{profile.email} · {profile.phone} · {profile.experience_level}</p>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {!profile.approved ? (
+            <button onClick={() => approveMutation.mutate(true)} disabled={approveMutation.isPending}
+              className="flex items-center gap-1 bg-green-500/15 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-500/25 transition-colors disabled:opacity-50">
+              <Check className="w-3 h-3" /> Approve
+            </button>
+          ) : (
+            <button onClick={() => approveMutation.mutate(false)} disabled={approveMutation.isPending}
+              className="flex items-center gap-1 bg-red-500/15 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-500/25 transition-colors disabled:opacity-50">
+              <X className="w-3 h-3" /> Revoke
+            </button>
+          )}
+          <button onClick={() => setExpanded(e => !e)} className="text-white/30 hover:text-white/60 transition-colors p-1">
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }} className="overflow-hidden">
+            <div className="px-5 pb-5 border-t border-white/6 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Skills</p>
+                <p className="text-white/65">{profile.skills?.join(", ") || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Looking for</p>
+                <p className="text-white/65">{profile.looking_for?.join(", ") || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Availability</p>
+                <p className="text-white/65">{profile.availability} · {profile.work_mode}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Location</p>
+                <p className="text-white/65">{profile.location}</p>
+              </div>
+              <div className="sm:col-span-2">
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-2">Contact</p>
+                <div className="flex flex-wrap gap-4 text-xs text-white/50">
+                  <span>Email: <span className="text-white/75">{profile.email}</span></span>
+                  <span>Phone: <span className="text-white/75">{profile.phone}</span></span>
+                  {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">LinkedIn</a>}
+                  {profile.portfolio_url && <a href={profile.portfolio_url} target="_blank" rel="noreferrer" className="text-white/75 hover:underline">Portfolio</a>}
+                  {profile.github_url && <a href={profile.github_url} target="_blank" rel="noreferrer" className="text-white/75 hover:underline">GitHub</a>}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function Admin() {
   const { session } = useAuth();
   const [, setLocation] = useLocation();
+  const [profileType, setProfileType] = useState<ProfileType>("startup");
 
-  const { data: profiles, isLoading, error } = useQuery<StartupProfile[]>({
-    queryKey: ["admin-profiles"],
+  const { data: profiles, isLoading, error } = useQuery<any[]>({
+    queryKey: ["admin-profiles", profileType],
     queryFn: async () => {
-      const r = await fetch("/api/admin", { headers: authHeaders(session!.access_token) });
+      const r = await fetch(`/api/admin?type=${profileType}`, { headers: authHeaders(session!.access_token) });
       if (r.status === 403) throw new Error("forbidden");
       if (!r.ok) throw new Error("Failed to load");
       return r.json();
@@ -167,6 +339,29 @@ export default function Admin() {
         </div>
       </nav>
 
+      {/* Tabs */}
+      <div className="bg-black/60 border-b border-white/5 px-6">
+        <div className="max-w-5xl mx-auto flex gap-6">
+          {[
+            { type: "startup" as ProfileType, label: "Startups" },
+            { type: "partner" as ProfileType, label: "Partners" },
+            { type: "individual" as ProfileType, label: "Individuals" },
+          ].map(tab => (
+            <button
+              key={tab.type}
+              onClick={() => setProfileType(tab.type)}
+              className={`py-3 text-sm font-medium border-b-2 transition-colors ${
+                profileType === tab.type
+                  ? "border-white text-white"
+                  : "border-transparent text-white/40 hover:text-white/60"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -192,7 +387,11 @@ export default function Admin() {
         {pending.length > 0 && (
           <div className="space-y-3">
             <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider">Pending approval ({pending.length})</h2>
-            {pending.map(p => <ProfileRow key={p.id} profile={p} token={session!.access_token} />)}
+            {pending.map(p => {
+              if (profileType === "startup") return <StartupProfileRow key={p.id} profile={p as StartupProfile} token={session!.access_token} profileType={profileType} />;
+              if (profileType === "partner") return <PartnerProfileRow key={p.id} profile={p as PartnerProfile} token={session!.access_token} profileType={profileType} />;
+              return <IndividualProfileRow key={p.id} profile={p as IndividualProfile} token={session!.access_token} profileType={profileType} />;
+            })}
           </div>
         )}
 
@@ -200,7 +399,11 @@ export default function Admin() {
         {approved.length > 0 && (
           <div className="space-y-3">
             <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider">Approved ({approved.length})</h2>
-            {approved.map(p => <ProfileRow key={p.id} profile={p} token={session!.access_token} />)}
+            {approved.map(p => {
+              if (profileType === "startup") return <StartupProfileRow key={p.id} profile={p as StartupProfile} token={session!.access_token} profileType={profileType} />;
+              if (profileType === "partner") return <PartnerProfileRow key={p.id} profile={p as PartnerProfile} token={session!.access_token} profileType={profileType} />;
+              return <IndividualProfileRow key={p.id} profile={p as IndividualProfile} token={session!.access_token} profileType={profileType} />;
+            })}
           </div>
         )}
 

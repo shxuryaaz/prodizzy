@@ -2,6 +2,60 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+const intentValidationSchema = z.object({
+  feedback_type: z.array(z.string()).optional(),
+  target_audience: z.string().optional(),
+  product_link: z.string().optional(),
+  specific_questions: z.string().optional(),
+  timeline: z.string().optional(),
+  response_count: z.string().optional(),
+}).optional();
+
+const intentHiringSchema = z.object({
+  role: z.string().optional(),
+  hiring_type: z.string().optional(),
+  work_mode: z.string().optional(),
+  budget_range: z.string().optional(),
+  urgency: z.string().optional(),
+  experience_level: z.string().optional(),
+  key_skills: z.string().optional(),
+}).optional();
+
+const intentPartnershipsSchema = z.object({
+  requirement_type: z.array(z.string()).optional(),
+  partner_description: z.string().optional(),
+  goals: z.string().optional(),
+  budget: z.string().optional(),
+  timeline: z.string().optional(),
+}).optional();
+
+const intentPromotionsSchema = z.object({
+  promotion_type: z.array(z.string()).optional(),
+  campaign_goal: z.string().optional(),
+  target_audience: z.string().optional(),
+  budget: z.string().optional(),
+  timeline: z.string().optional(),
+  expected_outcome: z.string().optional(),
+}).optional();
+
+const intentFundraisingSchema = z.object({
+  capital_amount: z.string().optional(),
+  fund_use: z.string().optional(),
+  funding_type: z.string().optional(),
+  annual_revenue: z.string().optional(),
+  existing_loans: z.string().optional(),
+  pitch_deck_link: z.string().optional(),
+  investors_approached: z.string().optional(),
+  investor_feedback: z.string().optional(),
+  compliance_status: z.string().optional(),
+  gst_filing_status: z.string().optional(),
+  past_defaults: z.string().optional(),
+  fundraising_reason: z.string().optional(),
+  investor_types_sought: z.string().optional(),
+  ticket_size: z.string().optional(),
+  ready_for_engagement: z.string().optional(),
+}).optional();
+
 const insertProfileSchema = z.object({
   name: z.string().min(1),
   job_title: z.string().min(1),
@@ -19,6 +73,22 @@ const insertProfileSchema = z.object({
   revenue_status: z.string().optional(),
   fundraising_status: z.string().optional(),
   capital_use: z.array(z.string()).default([]),
+  // New fields
+  phone: z.string().optional(),
+  website: z.string().optional(),
+  product_link: z.string().optional(),
+  is_registered: z.boolean().optional(),
+  product_description: z.string().optional(),
+  num_users: z.string().optional(),
+  monthly_revenue: z.string().optional(),
+  traction_highlights: z.string().optional(),
+  intents: z.array(z.string()).default([]),
+  // Conditional intent data
+  intent_validation: intentValidationSchema,
+  intent_hiring: intentHiringSchema,
+  intent_partnerships: intentPartnershipsSchema,
+  intent_promotions: intentPromotionsSchema,
+  intent_fundraising: intentFundraisingSchema,
 });
 
 const updateProfileSchema = z.object({

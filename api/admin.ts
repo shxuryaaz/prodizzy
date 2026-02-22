@@ -24,10 +24,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const supabase = serviceClient();
 
-  // GET /api/admin — list all profiles (unapproved first)
+  // GET /api/admin?type=startup|partner|individual — list all profiles (unapproved first)
   if (req.method === "GET") {
+    const profileType = (req.query.type as string) || "startup";
+    const tableName = profileType === "startup"
+      ? "startup_profiles"
+      : profileType === "partner"
+      ? "partner_profiles"
+      : "individual_profiles";
+
     const { data, error } = await supabase
-      .from("startup_profiles")
+      .from(tableName)
       .select("*")
       .order("approved", { ascending: true })
       .order("created_at", { ascending: false });
@@ -36,16 +43,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json(data);
   }
 
-  // PATCH /api/admin?id=<profile_id> — approve or reject
+  // PATCH /api/admin?id=<profile_id>&type=startup|partner|individual — approve or reject
   if (req.method === "PATCH") {
     const profileId = req.query.id as string;
+    const profileType = (req.query.type as string) || "startup";
     if (!profileId) return res.status(400).json({ message: "Profile id required" });
 
     const { approved } = req.body as { approved: boolean };
     if (typeof approved !== "boolean") return res.status(400).json({ message: "approved (boolean) required" });
 
+    const tableName = profileType === "startup"
+      ? "startup_profiles"
+      : profileType === "partner"
+      ? "partner_profiles"
+      : "individual_profiles";
+
     const { data, error } = await supabase
-      .from("startup_profiles")
+      .from(tableName)
       .update({ approved })
       .eq("id", profileId)
       .select()

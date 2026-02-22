@@ -7,6 +7,8 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Onboard from "@/pages/Onboard";
 import InvestorOnboard from "@/pages/InvestorOnboard";
+import PartnerOnboard from "@/pages/PartnerOnboard";
+import IndividualOnboard from "@/pages/IndividualOnboard";
 import Dashboard from "@/pages/Dashboard";
 import Discover from "@/pages/Discover";
 import Admin from "@/pages/Admin";
@@ -20,6 +22,8 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/onboard" component={Onboard} />
       <Route path="/investor-onboard" component={InvestorOnboard} />
+      <Route path="/partner-onboard" component={PartnerOnboard} />
+      <Route path="/individual-onboard" component={IndividualOnboard} />
       <Route path="/dashboard">{() => <ProtectedRoute component={Dashboard} />}</Route>
       <Route path="/discover">{() => <ProtectedRoute component={Discover} />}</Route>
       <Route path="/admin">{() => <ProtectedRoute component={Admin} />}</Route>
