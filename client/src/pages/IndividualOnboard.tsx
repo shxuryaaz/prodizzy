@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
 
 const TOTAL_STEPS = 6;
@@ -67,6 +69,12 @@ function MultiPill({ options, selected, onToggle }: { options: string[]; selecte
 }
 
 export default function IndividualOnboard() {
+  const { session } = useAuth();
+  const qc = useQueryClient();
+  const isLoggedIn = !!session;
+  // When already logged in, skip the account-creation step (step 5)
+  const EFFECTIVE_STEPS = isLoggedIn ? TOTAL_STEPS - 1 : TOTAL_STEPS;
+
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -106,6 +114,26 @@ export default function IndividualOnboard() {
   const [githubUrl, setGithubUrl] = useState("");
   const [password, setPassword] = useState("");
 
+  // If already logged in with a completed profile, send to dashboard
+  const { data: existingProfile } = useQuery({
+    queryKey: ["individual-profile"],
+    queryFn: async () => {
+      if (!session?.access_token) return null;
+      const r = await fetch("/api/individual", {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+      });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("Failed to fetch profile");
+      return r.json();
+    },
+    enabled: !!session,
+  });
+  useEffect(() => {
+    if (existingProfile?.onboarding_completed) {
+      setLocation("/dashboard");
+    }
+  }, [existingProfile, setLocation]);
+
   function go(next: number) { setDir(next > step ? 1 : -1); setStep(next); }
 
   function canProceed() {
@@ -124,11 +152,20 @@ export default function IndividualOnboard() {
     setSubmitting(true);
     setError("");
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
-    if (authError) { setError(authError.message); setSubmitting(false); return; }
+    let token: string;
 
-    const token = authData.session?.access_token;
-    if (!token) { setError("Signup succeeded but no session. Check email confirmation settings in Supabase."); setSubmitting(false); return; }
+    if (isLoggedIn) {
+      // Already authenticated — skip signUp, just save the profile
+      token = session!.access_token;
+    } else {
+      // Sign up with email/password
+      const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) { setError(authError.message); setSubmitting(false); return; }
+
+      const t = authData.session?.access_token;
+      if (!t) { setError("Signup succeeded but no session. Check email confirmation settings in Supabase."); setSubmitting(false); return; }
+      token = t;
+    }
 
     const res = await fetch("/api/individual", {
       method: "PUT",
@@ -164,6 +201,30 @@ export default function IndividualOnboard() {
       return;
     }
 
+    const savedProfile = await res.json();
+    console.log("Individual profile saved successfully:", savedProfile);
+
+    // Verify profile was saved successfully before redirecting
+    const verifyRes = await fetch("/api/individual", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!verifyRes.ok) {
+      const verifyBody = await verifyRes.json().catch(() => ({ message: "Unknown" }));
+      console.error("Profile verification failed:", verifyRes.status, verifyBody);
+      setError(`Verification failed (${verifyRes.status}): ${verifyBody.message}. Try signing in again.`);
+      setSubmitting(false);
+      return;
+    }
+
+    const verifiedProfile = await verifyRes.json();
+    console.log("Individual profile verified:", verifiedProfile);
+    // Seed the profile cache so Dashboard sees the profile immediately
+    qc.setQueryData(["individual-profile"], verifiedProfile);
     setLocation("/dashboard");
   }
 

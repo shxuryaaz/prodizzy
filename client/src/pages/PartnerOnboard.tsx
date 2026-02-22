@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
 
 const TOTAL_STEPS = 6;
@@ -67,6 +69,12 @@ function MultiPill({ options, selected, onToggle }: { options: string[]; selecte
 }
 
 export default function PartnerOnboard() {
+  const { session } = useAuth();
+  const qc = useQueryClient();
+  const isLoggedIn = !!session;
+  // When already logged in, skip the account-creation step (step 5)
+  const EFFECTIVE_STEPS = isLoggedIn ? TOTAL_STEPS - 1 : TOTAL_STEPS;
+
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -109,6 +117,26 @@ export default function PartnerOnboard() {
   const [preferredBudgetRange, setPreferredBudgetRange] = useState("");
   const [password, setPassword] = useState("");
 
+  // If already logged in with a completed profile, send to dashboard
+  const { data: existingProfile } = useQuery({
+    queryKey: ["partner-profile"],
+    queryFn: async () => {
+      if (!session?.access_token) return null;
+      const r = await fetch("/api/partner", {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+      });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("Failed to fetch profile");
+      return r.json();
+    },
+    enabled: !!session,
+  });
+  useEffect(() => {
+    if (existingProfile?.onboarding_completed) {
+      setLocation("/dashboard");
+    }
+  }, [existingProfile, setLocation]);
+
   function go(next: number) { setDir(next > step ? 1 : -1); setStep(next); }
 
   function canProceed() {
@@ -127,11 +155,20 @@ export default function PartnerOnboard() {
     setSubmitting(true);
     setError("");
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
-    if (authError) { setError(authError.message); setSubmitting(false); return; }
+    let token: string;
 
-    const token = authData.session?.access_token;
-    if (!token) { setError("Signup succeeded but no session. Check email confirmation settings in Supabase."); setSubmitting(false); return; }
+    if (isLoggedIn) {
+      // Already authenticated — skip signUp, just save the profile
+      token = session!.access_token;
+    } else {
+      // Sign up with email/password
+      const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) { setError(authError.message); setSubmitting(false); return; }
+
+      const t = authData.session?.access_token;
+      if (!t) { setError("Signup succeeded but no session. Check email confirmation settings in Supabase."); setSubmitting(false); return; }
+      token = t;
+    }
 
     const res = await fetch("/api/partner", {
       method: "PUT",
@@ -170,10 +207,34 @@ export default function PartnerOnboard() {
       return;
     }
 
+    const savedProfile = await res.json();
+    console.log("Partner profile saved successfully:", savedProfile);
+
+    // Verify profile was saved successfully before redirecting
+    const verifyRes = await fetch("/api/partner", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!verifyRes.ok) {
+      const verifyBody = await verifyRes.json().catch(() => ({ message: "Unknown" }));
+      console.error("Profile verification failed:", verifyRes.status, verifyBody);
+      setError(`Verification failed (${verifyRes.status}): ${verifyBody.message}. Try signing in again.`);
+      setSubmitting(false);
+      return;
+    }
+
+    const verifiedProfile = await verifyRes.json();
+    console.log("Partner profile verified:", verifiedProfile);
+    // Seed the profile cache so Dashboard sees the profile immediately
+    qc.setQueryData(["partner-profile"], verifiedProfile);
     setLocation("/dashboard");
   }
 
-  const steps = [
+  const allSteps = [
     <div key="0" className="space-y-5">
       <StepHeader step={0} title="Basic details" subtitle="Tell us about your organization" />
       <Field label="Full name" value={fullName} onChange={setFullName} placeholder="John Doe" />
@@ -252,11 +313,14 @@ export default function PartnerOnboard() {
     </div>,
   ];
 
+  // When logged in, skip the account-creation step (last step)
+  const steps = isLoggedIn ? allSteps.slice(0, 5) : allSteps;
+
   return (
     <div className="min-h-screen bg-black flex flex-col">
       {/* Progress */}
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-white/5 z-50">
-        <motion.div className="h-full bg-white" animate={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} />
+        <motion.div className="h-full bg-white" animate={{ width: `${((step + 1) / EFFECTIVE_STEPS) * 100}%` }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} />
       </div>
 
       <div className="flex items-center justify-between px-6 pt-8 pb-4">
@@ -264,7 +328,7 @@ export default function PartnerOnboard() {
           <img src="/logo.png" alt="Prodizzy" className="w-7 h-7 rounded-md" />
           <span className="text-white font-semibold tracking-tight">Prodizzy</span>
         </button>
-        <span className="text-white/25 text-xs tabular-nums">{step + 1} / {TOTAL_STEPS}</span>
+        <span className="text-white/25 text-xs tabular-nums">{step + 1} / {EFFECTIVE_STEPS}</span>
       </div>
 
       <div className="flex-1 flex items-start justify-center px-6 pt-10 pb-32">
@@ -278,13 +342,16 @@ export default function PartnerOnboard() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-6 pb-8 pt-4 bg-gradient-to-t from-black via-black/90 to-transparent">
+        {error && isLoggedIn && (
+          <p className="max-w-lg mx-auto text-red-400 text-sm mb-3">{error}</p>
+        )}
         <div className="max-w-lg mx-auto flex items-center gap-3">
           {step > 0 && (
             <button onClick={() => go(step - 1)} className="flex items-center justify-center w-11 h-11 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/25 transition-colors">
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          {step < TOTAL_STEPS - 1 ? (
+          {step < EFFECTIVE_STEPS - 1 ? (
             <button onClick={() => { if (canProceed()) go(step + 1); }} disabled={!canProceed()}
               className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
               Continue
@@ -292,7 +359,10 @@ export default function PartnerOnboard() {
           ) : (
             <button onClick={handleSubmit} disabled={!canProceed() || submitting}
               className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
-              {submitting ? "Creating account…" : "Create account"}
+              {submitting
+                ? (isLoggedIn ? "Saving…" : "Creating account…")
+                : (isLoggedIn ? "Save & go to dashboard" : "Create account")
+              }
             </button>
           )}
         </div>
