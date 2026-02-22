@@ -120,6 +120,18 @@ export default function InvestorOnboard() {
       return;
     }
 
+    // Verify investor profile was saved before redirecting
+    const verifyRes = await fetch("/api/investor", {
+      method: "GET",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    });
+
+    if (!verifyRes.ok) {
+      setError("Profile saved but couldn't verify. Please try signing in again.");
+      setSubmitting(false);
+      return;
+    }
+
     setLocation("/discover");
   }
 
