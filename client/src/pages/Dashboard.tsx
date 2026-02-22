@@ -168,7 +168,7 @@ function ProCard({ title, unlockLabel, isFilled, filledPreview, form, onSave, sa
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const qc = useQueryClient();
 
@@ -231,7 +231,8 @@ export default function Dashboard() {
   const [website, setWebsite] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
-  if (isLoading) {
+  // Wait for both auth and profile to load before deciding
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
