@@ -230,10 +230,14 @@ export default function Onboard() {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({ message: "Unknown error" }));
-      setError(body.message || "Failed to save profile");
+      console.error("Profile save failed:", res.status, body);
+      setError(`Save failed (${res.status}): ${body.message || "Unknown error"}`);
       setSubmitting(false);
       return;
     }
+
+    const savedProfile = await res.json();
+    console.log("Profile saved successfully:", savedProfile);
 
     // Verify profile was saved successfully before redirecting
     const verifyRes = await fetch("/api/profile", {
@@ -245,11 +249,15 @@ export default function Onboard() {
     });
 
     if (!verifyRes.ok) {
-      setError("Profile saved but couldn't verify. Please try signing in again.");
+      const verifyBody = await verifyRes.json().catch(() => ({ message: "Unknown" }));
+      console.error("Profile verification failed:", verifyRes.status, verifyBody);
+      setError(`Verification failed (${verifyRes.status}): ${verifyBody.message}. Try signing in again.`);
       setSubmitting(false);
       return;
     }
 
+    const verifiedProfile = await verifyRes.json();
+    console.log("Profile verified:", verifiedProfile);
     setLocation("/dashboard");
   }
 
