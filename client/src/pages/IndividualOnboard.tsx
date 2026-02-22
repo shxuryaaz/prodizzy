@@ -97,7 +97,7 @@ export default function IndividualOnboard() {
   const [availability, setAvailability] = useState("");
   const [workMode, setWorkMode] = useState("");
   const [expectedPay, setExpectedPay] = useState("");
-  const [location, setLocation] = useState("");
+  const [userLocation, setUserLocation] = useState("");
 
   // Step 6: Proof + Account
   const [resumeUrl, setResumeUrl] = useState("");
@@ -114,7 +114,7 @@ export default function IndividualOnboard() {
       case 1: return profileType;
       case 2: return skills.length > 0 && experienceLevel;
       case 3: return lookingFor.length > 0;
-      case 4: return availability && workMode && location;
+      case 4: return availability && workMode && userLocation;
       case 5: return password.length >= 6;
       default: return true;
     }
@@ -149,7 +149,7 @@ export default function IndividualOnboard() {
         availability,
         work_mode: workMode,
         expected_pay: expectedPay || undefined,
-        location,
+        location: userLocation,
         resume_url: resumeUrl || undefined,
         projects: projects || undefined,
         achievements: achievements || undefined,
@@ -221,7 +221,7 @@ export default function IndividualOnboard() {
         <SinglePill options={["Remote", "Hybrid", "Onsite"]} selected={workMode} onSelect={setWorkMode} />
       </div>
       <Field label="Expected pay (optional)" value={expectedPay} onChange={setExpectedPay} placeholder="$50K-$80K or $50/hr" />
-      <Field label="Location" value={location} onChange={setLocation} placeholder="San Francisco, CA" />
+      <Field label="Location" value={userLocation} onChange={setUserLocation} placeholder="San Francisco, CA" />
     </div>,
 
     <div key="5" className="space-y-5">
