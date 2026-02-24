@@ -25,6 +25,10 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [authMode, setAuthMode] = useState<"signup" | "signin">("signup");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
 
   // Always start at top
   useEffect(() => {
@@ -84,6 +88,40 @@ export default function Home() {
       }
     });
     if (error) setAuthError(error.message);
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setAuthLoading(true);
+
+    if (authMode === "signup") {
+      // Sign up - will show role selection modal after
+      const { error } = await supabase.auth.signUp({
+        email: authEmail,
+        password: authPassword,
+      });
+      if (error) {
+        setAuthError(error.message);
+        setAuthLoading(false);
+        return;
+      }
+      // Success - useEffect will handle showing role modal
+    } else {
+      // Sign in - go straight to dashboard
+      const { error } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: authPassword,
+      });
+      if (error) {
+        setAuthError(error.message);
+        setAuthLoading(false);
+        return;
+      }
+      setShowAuthModal(false);
+      setLocation("/dashboard");
+    }
+    setAuthLoading(false);
   };
 
   const scrollToHow = () => {
@@ -416,15 +454,41 @@ export default function Home() {
               className="text-2xl font-bold mb-2 text-center"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Join Prodizzy
+              {authMode === "signup" ? "Join Prodizzy" : "Welcome back"}
             </h2>
-            <p className="text-center text-[14px] mb-8" style={{ color: "rgba(255,255,255,0.4)" }}>
-              Sign in with Google to continue
+            <p className="text-center text-[14px] mb-6" style={{ color: "rgba(255,255,255,0.4)" }}>
+              {authMode === "signup" ? "Create your account to get started" : "Sign in to your account"}
             </p>
+
+            {/* Tab Switcher */}
+            <div className="flex gap-2 mb-6 p-1 rounded-lg" style={{ background: "rgba(255,255,255,0.04)" }}>
+              <button
+                onClick={() => { setAuthMode("signup"); setAuthError(""); }}
+                className="flex-1 py-2 rounded-md text-sm font-medium transition-all"
+                style={{
+                  background: authMode === "signup" ? "rgba(230,57,70,0.15)" : "transparent",
+                  color: authMode === "signup" ? "#E63946" : "rgba(255,255,255,0.4)",
+                  border: authMode === "signup" ? "1px solid rgba(230,57,70,0.3)" : "1px solid transparent",
+                }}
+              >
+                Sign up
+              </button>
+              <button
+                onClick={() => { setAuthMode("signin"); setAuthError(""); }}
+                className="flex-1 py-2 rounded-md text-sm font-medium transition-all"
+                style={{
+                  background: authMode === "signin" ? "rgba(230,57,70,0.15)" : "transparent",
+                  color: authMode === "signin" ? "#E63946" : "rgba(255,255,255,0.4)",
+                  border: authMode === "signin" ? "1px solid rgba(230,57,70,0.3)" : "1px solid transparent",
+                }}
+              >
+                Sign in
+              </button>
+            </div>
 
             <button
               onClick={handleGoogleLogin}
-              className="w-full bg-white text-black font-semibold py-3.5 rounded-lg text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2.5 mb-6"
+              className="w-full bg-white text-black font-semibold py-3.5 rounded-lg text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2.5 mb-5"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -435,21 +499,64 @@ export default function Home() {
               Continue with Google
             </button>
 
-            {authError && (
-              <p className="text-red-400 text-sm text-center mb-4">{authError}</p>
-            )}
-
-            <div className="text-center">
-              <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.3)" }}>
-                Already have an account?{" "}
-                <button
-                  onClick={() => { setShowAuthModal(false); setLocation("/login"); }}
-                  className="text-white/50 hover:text-white/80 transition-colors underline underline-offset-2"
-                >
-                  Sign in
-                </button>
-              </p>
+            {/* Divider */}
+            <div className="relative mb-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10"></div>
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-2 text-white/30" style={{ background: "#0D0E0F" }}>
+                  or {authMode === "signup" ? "sign up" : "sign in"} with email
+                </span>
+              </div>
             </div>
+
+            {/* Email/Password Form */}
+            <form onSubmit={handleEmailAuth} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wider">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={authEmail}
+                  onChange={e => setAuthEmail(e.target.value)}
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                  placeholder="you@startup.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wider">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={authPassword}
+                  onChange={e => setAuthPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                  placeholder="Min 6 characters"
+                />
+              </div>
+
+              {authError && (
+                <p className="text-red-400 text-sm">{authError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full bg-white text-black font-semibold py-3 rounded-lg text-sm hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              >
+                {authLoading
+                  ? (authMode === "signup" ? "Creating account…" : "Signing in…")
+                  : (authMode === "signup" ? "Create account" : "Sign in")
+                }
+              </button>
+            </form>
           </motion.div>
         </div>
       )}
