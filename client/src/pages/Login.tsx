@@ -40,16 +40,28 @@ export default function Login() {
     if (googleRedirecting) return;
     setError("");
     setGoogleRedirecting(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
       }
     });
-    if (error) {
-      setError(error.message);
+
+    if (oauthError) {
+      setError(oauthError.message);
       setGoogleRedirecting(false);
+      return;
     }
+
+    // If we reach here without error, redirect should be happening
+    // If it doesn't happen in 5 seconds, show error
+    setTimeout(() => {
+      if (googleRedirecting) {
+        setError("Redirect didn't start. Please try again.");
+        setGoogleRedirecting(false);
+      }
+    }, 5000);
   }
 
   return (

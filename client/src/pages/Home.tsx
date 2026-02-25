@@ -19,9 +19,12 @@ const scrollReveal = {
 
 const scrollRevealViewport = { once: true, margin: "-80px", amount: 0.2 };
 
+const OAUTH_POPUP_NAME = "prodizzy-oauth";
+const OAUTH_POPUP_SPEC = "width=500,height=600,scrollbars=yes,resizable=yes";
+
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { session } = useAuth();
+  const { session, refreshSession } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -60,31 +63,45 @@ export default function Home() {
   }, [fullHeroSubtitle]);
 
   // Check if signed-in user already has a completed profile (startup, partner, or individual)
-  const { data: hasCompletedProfile } = useQuery({
-    queryKey: ["has-completed-profile", session?.user?.id],
+  const { data: profileStatus } = useQuery({
+    queryKey: ["profile-status", session?.user?.id],
     queryFn: async () => {
-      if (!session?.access_token) return false;
+      if (!session?.access_token) return null;
       const headers = { Authorization: `Bearer ${session.access_token}` };
       const [profileRes, partnerRes, individualRes] = await Promise.all([
         fetch("/api/profile", { headers }),
         fetch("/api/partner", { headers }),
         fetch("/api/individual", { headers }),
       ]);
-      const check = (r: Response) => r.ok && r.status !== 404;
-      const getCompleted = async (r: Response) => (check(r) ? (await r.json())?.onboarding_completed : false);
+
+      // Check if user has ANY profile (even incomplete)
+      const hasAnyProfile = [profileRes, partnerRes, individualRes].some(r => r.ok && r.status !== 404);
+
+      // Check if user has completed onboarding
+      const getCompleted = async (r: Response) => {
+        if (!r.ok || r.status === 404) return false;
+        const data = await r.json();
+        return data?.onboarding_completed === true;
+      };
       const [p, partner, individual] = await Promise.all([
         getCompleted(profileRes),
         getCompleted(partnerRes),
         getCompleted(individualRes),
       ]);
-      return !!(p || partner || individual);
+      const hasCompletedProfile = !!(p || partner || individual);
+
+      return {
+        hasProfile: hasAnyProfile,
+        hasCompletedProfile,
+        needsOnboarding: !hasAnyProfile,
+      };
     },
     enabled: !!session,
   });
 
   // If user clicks "Join now": already signed in with completed profile → dashboard; else role modal or auth modal
   const handleJoinNow = () => {
-    if (session && hasCompletedProfile) {
+    if (session && profileStatus?.hasCompletedProfile) {
       setLocation("/dashboard");
     } else if (session) {
       setShowRoleModal(true);
@@ -93,29 +110,61 @@ export default function Home() {
     }
   };
 
-  // After successful Google auth, show role selection
+  // Auto-show role selection for new authenticated users without profiles
   useEffect(() => {
-    if (session && showAuthModal) {
-      setShowAuthModal(false);
+    if (!session || !profileStatus) return;
+
+    // If user is authenticated but has no profile, show role selection automatically
+    if (profileStatus.needsOnboarding && !showRoleModal && !showAuthModal) {
       setShowRoleModal(true);
     }
-  }, [session, showAuthModal]);
+  }, [session, profileStatus, showRoleModal, showAuthModal]);
 
   const handleGoogleLogin = async () => {
     if (googleRedirecting) return;
     setAuthError("");
     setGoogleRedirecting(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      }
+    const redirectTo = `${window.location.origin}/`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo, skipBrowserRedirect: true },
     });
     if (error) {
       setAuthError(error.message);
       setGoogleRedirecting(false);
+      return;
     }
-    // If no error, redirect is in progress; leave button disabled
+    const url = data?.url;
+    if (!url) {
+      setAuthError("Could not start sign in");
+      setGoogleRedirecting(false);
+      return;
+    }
+    const popup = window.open(url, OAUTH_POPUP_NAME, OAUTH_POPUP_SPEC);
+    if (!popup) {
+      setAuthError("Popup blocked. Allow popups for this site and try again.");
+      setGoogleRedirecting(false);
+      return;
+    }
+    const origin = window.location.origin;
+    const finish = () => {
+      refreshSession();
+      setGoogleRedirecting(false);
+    };
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== origin || e.data?.type !== "supabase-oauth-complete") return;
+      window.removeEventListener("message", onMessage);
+      clearInterval(intervalId);
+      finish();
+    };
+    window.addEventListener("message", onMessage);
+    const intervalId = window.setInterval(() => {
+      if (popup.closed) {
+        window.removeEventListener("message", onMessage);
+        window.clearInterval(intervalId);
+        finish();
+      }
+    }, 300);
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -526,7 +575,7 @@ export default function Home() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              {googleRedirecting ? "Redirecting…" : "Continue with Google"}
+              {googleRedirecting ? "Signing in…" : "Continue with Google"}
             </button>
 
             {/* Divider */}
