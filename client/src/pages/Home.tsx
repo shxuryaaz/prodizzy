@@ -24,7 +24,14 @@ export default function Home() {
   const { session } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [roleModalDismissed, setRoleModalDismissed] = useState(false);
+  const [roleModalDismissed, setRoleModalDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem("prodizzy-role-modal-dismissed") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [authError, setAuthError] = useState("");
   const [authMode, setAuthMode] = useState<"signup" | "signin">("signup");
   const [authEmail, setAuthEmail] = useState("");
@@ -628,6 +635,13 @@ export default function Home() {
           onClick={() => {
             setShowRoleModal(false);
             setRoleModalDismissed(true);
+            if (typeof window !== "undefined") {
+              try {
+                window.localStorage.setItem("prodizzy-role-modal-dismissed", "true");
+              } catch {
+                // ignore storage errors
+              }
+            }
           }}
         >
           <motion.div
@@ -678,6 +692,13 @@ export default function Home() {
               onClick={() => {
                 setShowRoleModal(false);
                 setRoleModalDismissed(true);
+                if (typeof window !== "undefined") {
+                  try {
+                    window.localStorage.setItem("prodizzy-role-modal-dismissed", "true");
+                  } catch {
+                    // ignore storage errors
+                  }
+                }
               }}
               className="w-full py-3 rounded-lg text-[14px] font-medium transition-colors"
               style={{ color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
