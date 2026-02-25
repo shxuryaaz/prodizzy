@@ -137,6 +137,13 @@ export default function PartnerOnboard() {
     }
   }, [existingProfile, setLocation]);
 
+  // Auto-fill email from session for authenticated users
+  useEffect(() => {
+    if (session?.user?.email && !email) {
+      setEmail(session.user.email);
+    }
+  }, [session, email]);
+
   function go(next: number) { setDir(next > step ? 1 : -1); setStep(next); }
 
   function canProceed() {
