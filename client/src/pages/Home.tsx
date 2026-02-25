@@ -20,7 +20,7 @@ const scrollReveal = {
 const scrollRevealViewport = { once: true, margin: "-80px", amount: 0.2 };
 
 export default function Home() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { session } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
@@ -103,6 +103,15 @@ export default function Home() {
     },
     enabled: !!session,
   });
+
+  // After Google (or any) sign-in, if user already has a completed profile, send
+  // them straight to the dashboard instead of leaving them on the hero.
+  useEffect(() => {
+    if (!session || !profileStatus?.hasCompletedProfile) return;
+    if (location === "/") {
+      setLocation("/dashboard");
+    }
+  }, [session, profileStatus, location, setLocation]);
 
   // If user clicks "Join now": already signed in with completed profile → dashboard; else role modal or auth modal
   const handleJoinNow = () => {
