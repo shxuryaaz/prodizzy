@@ -30,12 +30,33 @@ export default function Home() {
   const [authPassword, setAuthPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
 
+  // Smooth typing animation for hero subtitle
+  const fullHeroSubtitle =
+    "Stop relying on random connections. Get matched with the right people for hiring, partnerships, growth, and fundraising.";
+  const [heroSubtitle, setHeroSubtitle] = useState("");
+
   // Always start at top
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
   }, []);
+
+  // Type out hero subtitle text once on load
+  useEffect(() => {
+    let i = 0;
+    const speed = 18; // ms per character for smooth animation
+
+    const interval = setInterval(() => {
+      i += 1;
+      setHeroSubtitle(fullHeroSubtitle.slice(0, i));
+      if (i >= fullHeroSubtitle.length) {
+        clearInterval(interval);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [fullHeroSubtitle]);
 
   // Check if signed-in user already has a completed profile (startup, partner, or individual)
   const { data: hasCompletedProfile } = useQuery({
@@ -146,7 +167,7 @@ export default function Home() {
             background: "rgba(8,9,10,0.8)",
           }}
         >
-          <div className="mx-auto px-6 h-[58px] flex items-center justify-between max-w-5xl">
+          <div className="w-full px-4 h-[58px] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img src="/logo.png" alt="Prodizzy" className="w-6 h-6 object-contain" />
               <span className="text-[14px] font-semibold tracking-tight">Prodizzy</span>
@@ -184,7 +205,7 @@ export default function Home() {
               className="text-[17px] sm:text-[18px] leading-relaxed mb-10 max-w-2xl mx-auto"
               style={{ color: "rgba(255,255,255,0.45)" }}
             >
-              Stop relying on random connections. Get matched with the right people for hiring, partnerships, growth, and fundraising.
+              {heroSubtitle}
             </motion.p>
 
             <motion.div
