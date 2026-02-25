@@ -24,6 +24,7 @@ export default function Home() {
   const { session } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [roleModalDismissed, setRoleModalDismissed] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authMode, setAuthMode] = useState<"signup" | "signin">("signup");
   const [authEmail, setAuthEmail] = useState("");
@@ -112,10 +113,11 @@ export default function Home() {
     if (!session || !profileStatus) return;
 
     // If user is authenticated but has no profile, show role selection automatically
-    if (profileStatus.needsOnboarding && !showRoleModal && !showAuthModal) {
+    // Only show if user hasn't manually dismissed it
+    if (profileStatus.needsOnboarding && !showRoleModal && !showAuthModal && !roleModalDismissed) {
       setShowRoleModal(true);
     }
-  }, [session, profileStatus, showRoleModal, showAuthModal]);
+  }, [session, profileStatus, showRoleModal, showAuthModal, roleModalDismissed]);
 
   const handleGoogleLogin = async () => {
     if (googleRedirecting) return;
@@ -623,7 +625,10 @@ export default function Home() {
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center px-6"
           style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
-          onClick={() => setShowRoleModal(false)}
+          onClick={() => {
+            setShowRoleModal(false);
+            setRoleModalDismissed(true);
+          }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -670,7 +675,10 @@ export default function Home() {
             </div>
 
             <button
-              onClick={() => setShowRoleModal(false)}
+              onClick={() => {
+                setShowRoleModal(false);
+                setRoleModalDismissed(true);
+              }}
               className="w-full py-3 rounded-lg text-[14px] font-medium transition-colors"
               style={{ color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
