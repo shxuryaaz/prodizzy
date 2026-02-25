@@ -29,6 +29,7 @@ export default function Home() {
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
+  const [googleRedirecting, setGoogleRedirecting] = useState(false);
 
   // Smooth typing animation for hero subtitle
   const fullHeroSubtitle =
@@ -101,14 +102,20 @@ export default function Home() {
   }, [session, showAuthModal]);
 
   const handleGoogleLogin = async () => {
+    if (googleRedirecting) return;
     setAuthError("");
+    setGoogleRedirecting(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`,
       }
     });
-    if (error) setAuthError(error.message);
+    if (error) {
+      setAuthError(error.message);
+      setGoogleRedirecting(false);
+    }
+    // If no error, redirect is in progress; leave button disabled
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -508,8 +515,10 @@ export default function Home() {
             </div>
 
             <button
+              type="button"
               onClick={handleGoogleLogin}
-              className="w-full bg-white text-black font-semibold py-3.5 rounded-lg text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2.5 mb-5"
+              disabled={googleRedirecting}
+              className="w-full bg-white text-black font-semibold py-3.5 rounded-lg text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2.5 mb-5 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -517,7 +526,7 @@ export default function Home() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              {googleRedirecting ? "Redirecting…" : "Continue with Google"}
             </button>
 
             {/* Divider */}
