@@ -19,12 +19,9 @@ const scrollReveal = {
 
 const scrollRevealViewport = { once: true, margin: "-80px", amount: 0.2 };
 
-const OAUTH_POPUP_NAME = "prodizzy-oauth";
-const OAUTH_POPUP_SPEC = "width=500,height=600,scrollbars=yes,resizable=yes";
-
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { session, refreshSession } = useAuth();
+  const { session } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [authError, setAuthError] = useState("");
@@ -124,47 +121,28 @@ export default function Home() {
     if (googleRedirecting) return;
     setAuthError("");
     setGoogleRedirecting(true);
-    const redirectTo = `${window.location.origin}/`;
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo, skipBrowserRedirect: true },
-    });
-    if (error) {
-      setAuthError(error.message);
-      setGoogleRedirecting(false);
-      return;
-    }
-    const url = data?.url;
-    if (!url) {
-      setAuthError("Could not start sign in");
-      setGoogleRedirecting(false);
-      return;
-    }
-    const popup = window.open(url, OAUTH_POPUP_NAME, OAUTH_POPUP_SPEC);
-    if (!popup) {
-      setAuthError("Popup blocked. Allow popups for this site and try again.");
-      setGoogleRedirecting(false);
-      return;
-    }
-    const origin = window.location.origin;
-    const finish = () => {
-      refreshSession();
-      setGoogleRedirecting(false);
-    };
-    const onMessage = (e: MessageEvent) => {
-      if (e.origin !== origin || e.data?.type !== "supabase-oauth-complete") return;
-      window.removeEventListener("message", onMessage);
-      clearInterval(intervalId);
-      finish();
-    };
-    window.addEventListener("message", onMessage);
-    const intervalId = window.setInterval(() => {
-      if (popup.closed) {
-        window.removeEventListener("message", onMessage);
-        window.clearInterval(intervalId);
-        finish();
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
       }
-    }, 300);
+    });
+
+    if (oauthError) {
+      setAuthError(oauthError.message);
+      setGoogleRedirecting(false);
+      return;
+    }
+
+    // If we reach here without error, redirect should be happening
+    // If it doesn't happen in 5 seconds, show error
+    setTimeout(() => {
+      if (googleRedirecting) {
+        setAuthError("Redirect didn't start. Please try again.");
+        setGoogleRedirecting(false);
+      }
+    }, 5000);
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
