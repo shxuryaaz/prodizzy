@@ -201,6 +201,24 @@ export default function Home() {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleRoleCardClick = (role: "startup" | "partner" | "individual") => {
+    // When not authenticated, always go through auth first
+    if (!session) {
+      setAuthMode("signup");
+      setShowAuthModal(true);
+      return;
+    }
+
+    // Already authenticated → go straight to the chosen onboarding flow
+    if (role === "startup") {
+      setLocation("/onboard");
+    } else if (role === "partner") {
+      setLocation("/partner-onboard");
+    } else {
+      setLocation("/individual-onboard");
+    }
+  };
+
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: "#08090A", fontFamily: "'Inter', sans-serif" }}>
       <WebGLMeshBackground />
@@ -372,17 +390,17 @@ export default function Home() {
               {
                 title: "Join as Startup",
                 desc: "Build and scale your startup with the right people, partners, and capital. For founders from idea to growth stage.",
-                action: () => setLocation("/onboard"),
+                action: () => handleRoleCardClick("startup" as const),
               },
               {
                 title: "Join as Partner",
                 desc: "Access high-intent startups actively looking for your expertise. For agencies, service providers, investors, and institutional firms.",
-                action: () => setLocation("/partner-onboard"),
+                action: () => handleRoleCardClick("partner" as const),
               },
               {
                 title: "Join as Individual",
                 desc: "Receive curated opportunities based on your profile and preferences. For job seekers, freelancers, creators, and community admins.",
-                action: () => setLocation("/individual-onboard"),
+                action: () => handleRoleCardClick("individual" as const),
               },
             ].map((card, i) => (
               <motion.div
