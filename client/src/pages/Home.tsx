@@ -453,7 +453,7 @@ export default function Home() {
           </p>
         </motion.section>
 
-        {/* ── FINAL CTA ── */}
+        {/* ── FINAL CTA (TEXT ONLY) ── */}
         <motion.section
           className="px-6 py-28"
           initial={{ opacity: 0, y: 32 }}
@@ -470,27 +470,8 @@ export default function Home() {
               <br />right people, not just
               <br />more connections.
             </h2>
-            <p className="text-[15px] mb-10" style={{ color: "rgba(255,255,255,0.38)" }}>
+            <p className="text-[15px]" style={{ color: "rgba(255,255,255,0.38)" }}>
               Join Prodizzy today and turn your intent into real outcomes.
-            </p>
-            <button
-              onClick={handleJoinNow}
-              className="h-[52px] px-10 rounded-xl font-semibold text-[15px] text-white transition-opacity hover:opacity-90"
-              style={{ background: RED, boxShadow: `0 0 32px -6px rgba(230,57,70,0.5)` }}
-            >
-              Join now →
-            </button>
-            <p className="text-[13px] mt-6" style={{ color: "rgba(255,255,255,0.25)" }}>
-              Already have an account?{" "}
-              <button
-                onClick={() => setLocation("/login")}
-                className="transition-colors underline underline-offset-2"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
-              >
-                Sign in
-              </button>
             </p>
           </div>
         </motion.section>
