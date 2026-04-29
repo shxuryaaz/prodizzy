@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
+import { StepTitle } from "@/components/stitch/onboarding";
 
 const TOTAL_STEPS = 6;
 
@@ -14,16 +15,6 @@ function slideVariants(dir: number) {
     animate: { x: 0, opacity: 1, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
     exit: { x: dir > 0 ? "-60px" : "60px", opacity: 0, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } },
   };
-}
-
-function StepHeader({ step, title, subtitle }: { step: number; title: string; subtitle: string }) {
-  return (
-    <div className="mb-8">
-      <p className="text-xs text-white/25 uppercase tracking-widest mb-3">Step {step + 1}</p>
-      <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">{title}</h1>
-      <p className="text-white/40 text-base">{subtitle}</p>
-    </div>
-  );
 }
 
 function Field({ label, value, onChange, placeholder, type = "text", multiline }: {
@@ -237,7 +228,7 @@ export default function IndividualOnboard() {
 
   const steps = [
     <div key="0" className="space-y-5">
-      <StepHeader step={0} title="Basic details" subtitle="Tell us about yourself" />
+      <StepTitle step={0} title="Identity" subtitle="Create your individual profile baseline" />
       <Field label="Full name" value={fullName} onChange={setFullName} placeholder="Jane Smith" />
       <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@email.com" />
       <Field label="Phone" value={phone} onChange={setPhone} placeholder="+1 234 567 8900" />
@@ -246,7 +237,7 @@ export default function IndividualOnboard() {
     </div>,
 
     <div key="1" className="space-y-6">
-      <StepHeader step={1} title="Profile type" subtitle="What best describes you?" />
+      <StepTitle step={1} title="Profile type" subtitle="Choose your professional category" />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Type</p>
         <SinglePill options={["Student", "Freelancer", "Professional", "Content Creator", "Community Admin"]} selected={profileType} onSelect={setProfileType} />
@@ -254,7 +245,7 @@ export default function IndividualOnboard() {
     </div>,
 
     <div key="2" className="space-y-6">
-      <StepHeader step={2} title="Your skills" subtitle="What are you good at?" />
+      <StepTitle step={2} title="Skill graph" subtitle="Highlight your strongest capabilities" />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Skills</p>
         <MultiPill options={["Design", "Development", "Marketing", "Sales", "Writing", "Video Editing", "Community", "Operations"]} selected={skills}
@@ -268,7 +259,7 @@ export default function IndividualOnboard() {
     </div>,
 
     <div key="3" className="space-y-6">
-      <StepHeader step={3} title="What are you looking for?" subtitle="Define your ideal opportunity" />
+      <StepTitle step={3} title="Intent" subtitle="Define the outcomes you want next" />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Looking for</p>
         <MultiPill options={["Job", "Internship", "Freelance", "Collaboration"]} selected={lookingFor}
@@ -279,7 +270,7 @@ export default function IndividualOnboard() {
     </div>,
 
     <div key="4" className="space-y-6">
-      <StepHeader step={4} title="Your availability" subtitle="Work preferences and location" />
+      <StepTitle step={4} title="Availability" subtitle="Set format, timing, and location preference" />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Availability</p>
         <SinglePill options={["Full-time", "Part-time", "Project-based"]} selected={availability} onSelect={setAvailability} />
@@ -293,7 +284,7 @@ export default function IndividualOnboard() {
     </div>,
 
     <div key="5" className="space-y-5">
-      <StepHeader step={5} title="Proof of work" subtitle="Showcase your experience and create account" />
+      <StepTitle step={5} title="Proof of work" subtitle="Add proof points and create account" />
       <Field label="Resume URL (optional)" value={resumeUrl} onChange={setResumeUrl} placeholder="https://drive.google.com/..." />
       <Field label="Projects (optional)" value={projects} onChange={setProjects} placeholder="Describe your best projects..." multiline />
       <Field label="Achievements (optional)" value={achievements} onChange={setAchievements} placeholder="Awards, certifications..." multiline />
@@ -337,12 +328,12 @@ export default function IndividualOnboard() {
           )}
           {step < TOTAL_STEPS - 1 ? (
             <button onClick={() => { if (canProceed()) go(step + 1); }} disabled={!canProceed()}
-              className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
+              className="flex-1 bg-[#E63946] text-white font-semibold py-3 rounded-xl text-sm hover:opacity-90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
               Continue
             </button>
           ) : (
             <button onClick={handleSubmit} disabled={!canProceed() || submitting}
-              className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
+              className="flex-1 bg-[#E63946] text-white font-semibold py-3 rounded-xl text-sm hover:opacity-90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed">
               {submitting ? "Creating account…" : "Create account"}
             </button>
           )}

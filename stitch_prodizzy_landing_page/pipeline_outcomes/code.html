@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prodizzy Pipeline &amp; Outcome Tracking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #383663;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-primary/20 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-50">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white">rocket_launch</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">Prodizzy</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar of a professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyBvbhh30_OxKOy43yuCm3zrzSsm7Nc4-ZilOJ5fdvMc4I3-1ECUHouzeF-r3CRwTjHggcaJnJQm3wvTFDX1OObcmjyqrGrwsiFQsYzyUHMlxAtm7YlWP_GIDsXOCKbql8gen8YvGix6J8EtHKUbPA_zt76qiiR31MqVp_UDqnhbqfccs75Dx365keEQ-54z0qn1iqYLxq2utEWqsa8xsdCiOxVCGlHWBZirLu_vHOQBQoqdk2Z4fTrZy9-gMKl3dOXYYkgGsv5UKE"/>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col gap-6 p-4 md:p-6 overflow-x-hidden">
+<!-- Pipeline Status Tabs -->
+<div class="w-full">
+<div class="flex border-b border-slate-200 dark:border-primary/10 overflow-x-auto no-scrollbar">
+<a class="flex flex-col items-center px-6 pb-3 pt-2 border-b-2 border-transparent text-slate-500 hover:text-primary whitespace-nowrap" href="#">
+<span class="text-sm font-semibold uppercase tracking-wider">Matched</span>
+<span class="text-xs font-medium opacity-60">12 deals</span>
+</a>
+<a class="flex flex-col items-center px-6 pb-3 pt-2 border-b-2 border-transparent text-slate-500 hover:text-primary whitespace-nowrap" href="#">
+<span class="text-sm font-semibold uppercase tracking-wider">Contacted</span>
+<span class="text-xs font-medium opacity-60">8 deals</span>
+</a>
+<a class="flex flex-col items-center px-6 pb-3 pt-2 border-b-2 border-primary text-primary whitespace-nowrap" href="#">
+<span class="text-sm font-semibold uppercase tracking-wider">In Discussion</span>
+<span class="text-xs font-medium opacity-60">5 deals</span>
+</a>
+<a class="flex flex-col items-center px-6 pb-3 pt-2 border-b-2 border-transparent text-slate-500 hover:text-primary whitespace-nowrap" href="#">
+<span class="text-sm font-semibold uppercase tracking-wider">Closed</span>
+<span class="text-xs font-medium opacity-60">24 deals</span>
+</a>
+</div>
+</div>
+<!-- AI Insight Banner -->
+<div class="@container">
+<div class="flex flex-col @[600px]:flex-row items-start @[600px]:items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-5">
+<div class="flex items-center gap-4">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight">AI Insight</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">It's been 3 days since your last message to Sarah from TechStream.</p>
+</div>
+</div>
+<div class="flex gap-2 w-full @[600px]:w-auto">
+<button class="flex-1 @[600px]:flex-none min-w-[120px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all">
+                        Send Reminder
+                    </button>
+<button class="flex-1 @[600px]:flex-none min-w-[120px] px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
+                        Schedule Meeting
+                    </button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Active Deals Section -->
+<div class="lg:col-span-2 space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold">Active Deals — In Discussion</h3>
+<button class="text-sm text-primary font-semibold flex items-center gap-1">
+                        View all <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Deal Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="p-4 rounded-xl border border-slate-200 dark:border-primary/10 bg-white dark:bg-primary/5 hover:border-primary/40 transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+<span class="material-symbols-outlined">corporate_fare</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">TechStream Solutions</h4>
+<p class="text-xs text-slate-500">Series B Startup</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary">High Priority</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Deal Value</span>
+<span class="font-bold">$45,000 /yr</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Last Activity</span>
+<span class="font-bold">3 days ago</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 65%;"></div>
+</div>
+<p class="text-[11px] text-slate-400 italic">"Sarah requested updated portfolio by Friday."</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-4 rounded-xl border border-slate-200 dark:border-primary/10 bg-white dark:bg-primary/5 hover:border-primary/40 transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Lumina Creative</h4>
+<p class="text-xs text-slate-500">Global Agency</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-500">Regular</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Deal Value</span>
+<span class="font-bold">$12,000 /yr</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Last Activity</span>
+<span class="font-bold">Today</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 40%;"></div>
+</div>
+<p class="text-[11px] text-slate-400 italic">"Sent initial proposal for review."</p>
+</div>
+</div>
+</div>
+<!-- Recent Outcomes List -->
+<div class="pt-4">
+<h3 class="text-lg font-bold mb-4">Outcome Feed</h3>
+<div class="space-y-3">
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-primary/5 border border-slate-100 dark:border-primary/5">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="w-px h-full bg-slate-200 dark:bg-slate-800 my-1"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-bold">Hiring Completed: Lead UI Designer</h5>
+<span class="text-[10px] font-medium text-slate-400">Oct 24, 2023</span>
+</div>
+<p class="text-xs text-slate-500 mt-1">Quantum Labs closed the search. Talent onboarded successfully.</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">VALUE: $28,000</span>
+</div>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-primary/5 border border-slate-100 dark:border-primary/5">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">handshake</span>
+</div>
+<div class="w-px h-full bg-slate-200 dark:bg-slate-800 my-1"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-bold">Partnership Signed: CloudCore</h5>
+<span class="text-[10px] font-medium text-slate-400">Oct 22, 2023</span>
+</div>
+<p class="text-xs text-slate-500 mt-1">Strategic integration partnership for Q4 rollout.</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-bold">VALUE: $150,000</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats & Summary Sidebar -->
+<div class="space-y-6">
+<!-- Pipeline Summary Card -->
+<div class="p-6 rounded-2xl bg-primary text-white shadow-xl shadow-primary/20">
+<h4 class="text-sm font-medium opacity-80 mb-1">Total Pipeline Value</h4>
+<div class="text-3xl font-bold mb-6">$842,500</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center text-xs">
+<span class="opacity-70">Goal: $1.2M</span>
+<span class="font-bold">70% reached</span>
+</div>
+<div class="w-full bg-white/20 h-2 rounded-full">
+<div class="bg-white h-full rounded-full" style="width: 70%;"></div>
+</div>
+</div>
+</div>
+<!-- Monthly Conversion Chart Mockup -->
+<div class="p-5 rounded-2xl border border-slate-200 dark:border-primary/10 bg-white dark:bg-primary/5">
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-sm font-bold uppercase tracking-wider text-slate-400">Conversion Rate</h4>
+<span class="text-xs font-bold text-emerald-500">+4.2%</span>
+</div>
+<div class="flex items-end justify-between h-32 gap-2 px-2">
+<div class="w-full bg-primary/20 rounded-t h-[40%]"></div>
+<div class="w-full bg-primary/20 rounded-t h-[65%]"></div>
+<div class="w-full bg-primary/20 rounded-t h-[55%]"></div>
+<div class="w-full bg-primary rounded-t h-[85%]"></div>
+<div class="w-full bg-primary/20 rounded-t h-[45%]"></div>
+<div class="w-full bg-primary/20 rounded-t h-[70%]"></div>
+</div>
+<div class="flex justify-between mt-2 px-1">
+<span class="text-[10px] text-slate-500">May</span>
+<span class="text-[10px] text-slate-500">Jun</span>
+<span class="text-[10px] text-slate-500">Jul</span>
+<span class="text-[10px] text-slate-500">Aug</span>
+<span class="text-[10px] text-slate-500">Sep</span>
+<span class="text-[10px] text-slate-500">Oct</span>
+</div>
+</div>
+<!-- Quick Actions List -->
+<div class="space-y-2">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Quick Tasks</p>
+<button class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 hover:bg-primary/10 transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">mail</span>
+<span class="text-sm font-medium">Follow up on Sarah</span>
+</div>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 hover:bg-primary/10 transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">calendar_month</span>
+<span class="text-sm font-medium">Schedule Lumina Demo</span>
+</div>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800/50 hover:bg-primary/10 transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">upload_file</span>
+<span class="text-sm font-medium">Upload Contracts</span>
+</div>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile/Standard) -->
+<nav class="sticky bottom-0 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-primary/10 px-6 py-2">
+<div class="max-w-screen-xl mx-auto flex items-center justify-between md:justify-around">
+<a class="flex flex-col items-center gap-1 p-2 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">view_kanban</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Pipeline</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Analytics</span>
+</a>
+<div class="relative -top-6">
+<button class="bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-primary/40 border-4 border-white dark:border-background-dark">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Messages</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

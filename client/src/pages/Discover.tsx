@@ -16,13 +16,13 @@ const STAGES = ["Idea", "Pre-Product", "Pre-Revenue", "Early Revenue", "Scaling"
 const FUNDRAISING = ["Not raising", "Planning", "Actively raising", "Closed recently"];
 
 const GOAL_COLORS: Record<string, string> = {
-  Investors: "bg-red-500/15 text-red-400 border-red-500/20",
-  Customers: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  "Co-founders": "bg-purple-500/15 text-purple-400 border-purple-500/20",
-  Partners: "bg-teal-500/15 text-teal-400 border-teal-500/20",
-  "Enterprise Clients": "bg-orange-500/15 text-orange-400 border-orange-500/20",
-  Mentors: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
-  Talent: "bg-green-500/15 text-green-400 border-green-500/20",
+  Investors: "bg-red-500/15 text-red-300 border-red-500/30",
+  Customers: "bg-red-500/10 text-red-200 border-red-500/20",
+  "Co-founders": "bg-red-500/20 text-red-300 border-red-500/35",
+  Partners: "bg-red-500/15 text-red-200 border-red-500/20",
+  "Enterprise Clients": "bg-red-500/10 text-red-200 border-red-500/20",
+  Mentors: "bg-red-500/15 text-red-200 border-red-500/25",
+  Talent: "bg-red-500/15 text-red-300 border-red-500/30",
 };
 
 function FilterPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
@@ -263,6 +263,18 @@ export default function Discover() {
           <p className="text-white/35 text-sm mt-1">
             {profiles ? `${profiles.length} approved startup${profiles.length !== 1 ? "s" : ""}` : "Loading…"}
           </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-3 mb-6">
+          {[
+            ["Matchmaking Results", "Explore ranked startups with stronger fit indicators."],
+            ["Messaging Intro System", "Submit interest and let our team mediate warm intros."],
+            ["Pipeline Outcomes", "Track each intro from submission to execution."],
+          ].map((item) => (
+            <div key={item[0]} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+              <p className="text-xs text-[#E63946] uppercase tracking-wider mb-1">{item[0]}</p>
+              <p className="text-sm text-white/70">{item[1]}</p>
+            </div>
+          ))}
         </div>
 
         {isLoading && (

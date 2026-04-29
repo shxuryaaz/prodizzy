@@ -265,7 +265,7 @@ export default function Home() {
               className="font-bold leading-[1.08] tracking-[-0.035em] mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "clamp(2.8rem, 7vw, 5.2rem)" }}
             >
-              Turn Intent into
+              Turn Your Needs Into
               <br />
               <span style={{ color: RED }}>Outcomes</span>
             </motion.h1>
@@ -302,6 +302,84 @@ export default function Home() {
           </motion.div>
         </section>
 
+        {/* ── CHALLENGE ── */}
+        <motion.section
+          className="px-6 py-24"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollRevealViewport}
+          variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.08 } } }}
+        >
+          <motion.div variants={scrollReveal} className="max-w-3xl mx-auto text-center mb-14">
+            <p className="text-[11px] uppercase tracking-[0.22em] mb-4" style={{ color: RED }}>The challenge</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 tracking-[-0.025em]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Visibility without relevance slows execution
+            </h2>
+            <p className="text-[15px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+              Most platforms create noise, not outcomes. Prodizzy maps real intent to real people so teams can move faster.
+            </p>
+          </motion.div>
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              ["Information overload", "Thousands of posts make it hard to find one right collaborator."],
+              ["Fragmented networks", "High-value opportunities stay in closed circles and DMs."],
+              ["Missed timing", "Good matches fail because outreach happens too late."],
+            ].map((item, i) => (
+              <motion.div
+                key={item[0]}
+                variants={scrollReveal}
+                custom={i}
+                className="rounded-2xl p-6"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
+                <h3 className="text-lg font-semibold mb-2">{item[0]}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{item[1]}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* ── SOLUTION FLOW ── */}
+        <motion.section
+          className="px-6 py-24"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollRevealViewport}
+          variants={{ visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
+        >
+          <motion.h2
+            variants={scrollReveal}
+            className="text-3xl sm:text-4xl font-bold text-center mb-16 tracking-[-0.025em]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            From intent to execution
+          </motion.h2>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              ["Declare intent", "Tell us your objective and constraints."],
+              ["Get scored matches", "AI ranks people with high fit probability."],
+              ["Warm intro", "Both sides opt in before direct connection."],
+              ["Track outcome", "Measure progress and improve every future match."],
+            ].map((item, i) => (
+              <motion.div
+                key={item[0]}
+                variants={scrollReveal}
+                custom={i}
+                className="rounded-2xl p-6"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
+                <div className="w-10 h-10 mb-4 rounded-full text-sm font-semibold flex items-center justify-center" style={{ background: "rgba(230,57,70,0.15)", color: RED }}>
+                  {i + 1}
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{item[0]}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{item[1]}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
         {/* ── HOW IT WORKS ── */}
         <motion.section
           id="how-it-works"
@@ -317,25 +395,25 @@ export default function Home() {
             className="text-3xl sm:text-4xl font-bold text-center mb-16 tracking-[-0.025em]"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            How it works
+            Your path to clarity
           </motion.h2>
 
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: "1",
-                title: "Define your needs",
-                desc: "Tell us your startup stage and current needs — hiring, partnerships, growth, or fundraising.",
+                title: "Needs profile",
+                desc: "Define your objective, stage, urgency, and desired outcomes in one structured workflow.",
               },
               {
                 step: "2",
-                title: "Get matched",
-                desc: "We connect you with the right people and collaborators actively looking for startups like yours.",
+                title: "Compatibility engine",
+                desc: "We score potential connections by relevance, timing, and execution readiness.",
               },
               {
                 step: "3",
-                title: "Track & automate",
-                desc: "Track conversations, get insights, and automate follow-ups — all in one place.",
+                title: "Outcome loop",
+                desc: "Track intros, response quality, and execution results to improve each next match.",
               },
             ].map((item, i) => (
               <motion.div

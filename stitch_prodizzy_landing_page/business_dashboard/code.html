@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                        "surface-dark": "#1c1b32",
+                        "border-dark": "#272546",
+                        "text-muted": "#9795c6",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="flex items-center bg-background-light dark:bg-background-dark p-4 sticky top-0 z-10 border-b border-slate-200 dark:border-border-dark justify-between">
+<div class="flex size-12 shrink-0 items-center">
+<div class="bg-primary/20 rounded-full size-10 flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary">rocket_launch</span>
+</div>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 ml-2">Prodizzy</h2>
+<div class="flex gap-2 items-center justify-end">
+<button class="flex size-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-white border border-slate-200 dark:border-border-dark">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-white border border-slate-200 dark:border-border-dark relative">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="flex-1 pb-24">
+<section class="px-4 pt-8 pb-4">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight mb-2">What do you need right now?</h1>
+<p class="text-slate-500 dark:text-text-muted text-sm">Select an objective to launch the AI strategist.</p>
+</section>
+<section class="flex overflow-x-auto hide-scrollbar gap-4 px-4 py-2">
+<a class="flex flex-col gap-3 group min-w-[160px] flex-1" href="#">
+<div class="aspect-square rounded-xl bg-gradient-to-br from-primary/40 to-primary/10 border border-primary/20 flex items-center justify-center group-hover:border-primary transition-colors overflow-hidden relative">
+<div class="absolute inset-0 opacity-20 bg-cover bg-center" data-alt="Abstract digital circuit pattern background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqo2TjlEUlsjdpq9BRHgvDuzN010pzzhQ74HLTJ4YzmRUV19xwJcEtvZb5BQK0u4wSk75t05szGI_Xr-wsZ1kEGA1kJJw3a5GzaleF03QVwYHW2tSwUZ4N1iksaIAKMtmFrbT3NhVhH9I6kMq7gOLx9tXhnxoIkZXycwlM_MizVJM_IaqHbStXnGKwfsGttG2RzQhhzieqYqvScodWhFf9ud4TLVu8f9_WjQJaZN5-uhyPqtsQdhVMAPYHjBj3E8VzlE4pVCESvBKh')"></div>
+<span class="material-symbols-outlined text-primary text-4xl relative z-10">lightbulb</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-semibold">Validate Idea</p>
+<p class="text-slate-500 dark:text-text-muted text-xs">AI Market Feedback</p>
+</div>
+</a>
+<a class="flex flex-col gap-3 group min-w-[160px] flex-1" href="#">
+<div class="aspect-square rounded-xl bg-gradient-to-br from-emerald-500/40 to-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:border-emerald-500 transition-colors overflow-hidden relative">
+<div class="absolute inset-0 opacity-20 bg-cover bg-center" data-alt="Group of people working together background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB17SmT-XTASaagETZkrU_g21yh44X8PKN8ujWeFPDOabcfCAGnF7yO4r611MYC4pi5YXtDURAa6wV85VEijfXnpqCS_aYwutPqN3uR3H7C8rEqpwwNANtAnXFBjIkOq7yHGAZQzAx0N8fCFdqCnlqMqFaBHBaiTKwiBtSDJju4esEnJVysVWRjjPKXkpku1yEKOnXyJSWP_vHK1E-HbSNZrBSeemiBhVMRgcK5T0quWo-H5B-CRtrp_WkD0iiO3KlxiBUvXOOv5ELA')"></div>
+<span class="material-symbols-outlined text-emerald-500 text-4xl relative z-10">group_add</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-semibold">Hire Talent</p>
+<p class="text-slate-500 dark:text-text-muted text-xs">Build your team</p>
+</div>
+</a>
+<a class="flex flex-col gap-3 group min-w-[160px] flex-1" href="#">
+<div class="aspect-square rounded-xl bg-gradient-to-br from-amber-500/40 to-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:border-amber-500 transition-colors overflow-hidden relative">
+<div class="absolute inset-0 opacity-20 bg-cover bg-center" data-alt="Handshake and business networking background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBekSYR9cfAdUC0AeQpjL1FI0_0qqOJpEO85V7y9un-sRHoKvYOZ-6MykhEM98Ody4osZaGzP3frUmQFA_d4yLMyyL9guqOO99RULGpnU652aIZ7zzhu9tU03vB9g4LbgdU6jFIOeVct1OmfI5V_7YqXW0xqX41jWJ-hRFAantRcH-4WyitQhhI1jOD8QrOJaWkjtU6907D7vc24RF6-oNU2RYjKAJtQy_g1OfJtTlFH8p22QLjOM4cHOasHmxQ3xvXrGq7jdxdIrfg')"></div>
+<span class="material-symbols-outlined text-amber-500 text-4xl relative z-10">handshake</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-semibold">Find Partners</p>
+<p class="text-slate-500 dark:text-text-muted text-xs">Network now</p>
+</div>
+</a>
+<a class="flex flex-col gap-3 group min-w-[160px] flex-1" href="#">
+<div class="aspect-square rounded-xl bg-gradient-to-br from-fuchsia-500/40 to-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center group-hover:border-fuchsia-500 transition-colors overflow-hidden relative">
+<div class="absolute inset-0 opacity-20 bg-cover bg-center" data-alt="Digital marketing analytics data background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDd9LqkxBAjQpuKyymdz7UZ4TWYglqcPAz-A0Q4pKaDBxVqekS064OqXcLaWT3Vt51W5lkLIxdBTP1lgsgyjuPsHZa9I__j68F-ls8lRcajsbxcPdmZonX9JXp4VH7ZmKXB_euUHQ0Grvut9DipcO9NYEG450DO0lg9rnLxlOIVYRUrCbN4UYm3xj-9kYSdIFZ66AVpfxYc0Knuck8RvkelY7Mh25_u96YEEUgbYsF7OlzfS4pPq56df4z4V1AABWDPCfC0L8nsvpU0')"></div>
+<span class="material-symbols-outlined text-fuchsia-500 text-4xl relative z-10">campaign</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-semibold">Promote</p>
+<p class="text-slate-500 dark:text-text-muted text-xs">Grow userbase</p>
+</div>
+</a>
+<a class="flex flex-col gap-3 group min-w-[160px] flex-1" href="#">
+<div class="aspect-square rounded-xl bg-gradient-to-br from-cyan-500/40 to-cyan-500/10 border border-cyan-500/20 flex items-center justify-center group-hover:border-cyan-500 transition-colors overflow-hidden relative">
+<div class="absolute inset-0 opacity-20 bg-cover bg-center" data-alt="Stacks of coins and financial growth background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOtLp-Q-gc5mlTpCOWEdnFR_bwA-m7NhxlUwqd8JaOc8pWk5BKMMPYDgUM7FQHwL9HN0L36sGvl1r-jlphOqfp1R95us11yA2Lh_lRvW1hcI24rPcLpkbKmOvf2uEOGdW1nfySsV8_Gu8Tl13UP4MJ3ZFF1syswpr48sLp9ZAZbsu1dKgNxGB7Q-Yn-F5mESsJVf_1zN6wqES34kOIPyUDjBSpQdLi2Iw3UzMKS57ShNi7NOIMnwAyr1qsGKIso7TRalR8jWSRZ0RN')"></div>
+<span class="material-symbols-outlined text-cyan-500 text-4xl relative z-10">payments</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-semibold">Raise Funding</p>
+<p class="text-slate-500 dark:text-text-muted text-xs">Pitch deck help</p>
+</div>
+</a>
+</section>
+<section class="px-4 pt-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-slate-900 dark:text-white text-[22px] font-bold tracking-tight">Current Needs</h2>
+<a class="text-primary text-sm font-medium" href="#">View All</a>
+</div>
+<div class="space-y-3">
+<div class="p-4 rounded-xl bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div class="flex-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Product Validation</h3>
+<p class="text-slate-600 dark:text-text-muted text-sm mt-1">Analyzing SaaS MVP feedback from beta testers...</p>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+<div class="size-12 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-500">search_check</span>
+</div>
+<div class="flex-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Recruitment</h3>
+<p class="text-slate-600 dark:text-text-muted text-sm mt-1">Sourcing Senior React Engineers in Europe.</p>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-emerald-500 h-full w-[20%]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="px-4 pt-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-slate-900 dark:text-white text-[22px] font-bold tracking-tight">Successful Outcomes</h2>
+<a class="text-primary text-sm font-medium" href="#">History</a>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 rounded-xl bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
+<span class="text-[10px] font-bold text-text-muted uppercase">Funding</span>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-semibold">$50k Seed Secured</p>
+<p class="text-slate-500 dark:text-text-muted text-[10px] mt-1">2 weeks ago</p>
+</div>
+<div class="p-3 rounded-xl bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
+<span class="text-[10px] font-bold text-text-muted uppercase">Networking</span>
+</div>
+<p class="text-slate-900 dark:text-white text-sm font-semibold">CTO Partner Found</p>
+<p class="text-slate-500 dark:text-text-muted text-[10px] mt-1">1 month ago</p>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-border-dark bg-white/80 dark:bg-surface-dark/90 backdrop-blur-lg px-4 pb-6 pt-2 z-20">
+<div class="flex justify-around items-center">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">grid_view</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Home</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-text-muted" href="#">
+<span class="material-symbols-outlined">forum</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Chat</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-text-muted" href="#">
+<span class="material-symbols-outlined">insights</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Insights</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-text-muted" href="#">
+<span class="material-symbols-outlined">person</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Profile</p>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

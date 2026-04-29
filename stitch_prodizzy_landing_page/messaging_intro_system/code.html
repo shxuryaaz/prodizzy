@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prodizzy Chat Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex h-screen flex-col max-w-5xl mx-auto border-x border-slate-200 dark:border-primary/20">
+<!-- Header -->
+<header class="flex items-center justify-between p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-primary/20">
+<div class="flex items-center gap-3">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-none">Prodizzy</h1>
+<span class="text-xs text-primary font-medium mt-1">Matched for: Senior Product Designer Role</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">video_call</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Chat Body -->
+<main class="flex-1 flex flex-col bg-white dark:bg-background-dark/50">
+<!-- Intro Context Card -->
+<div class="p-4">
+<div class="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col @[480px]:flex-row @[480px]:items-center justify-between gap-4">
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Why you matched</p>
+<p class="text-sm text-slate-600 dark:text-slate-400">Shared interest in FinTech &amp; 8+ years experience in Design Systems.</p>
+</div>
+<a class="text-xs font-bold text-primary flex items-center gap-1 hover:underline" href="#">
+                            View Intent Details
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Messages -->
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- Date Separator -->
+<div class="flex items-center justify-center">
+<span class="px-3 py-1 bg-slate-100 dark:bg-primary/10 rounded-full text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">Today</span>
+</div>
+<!-- Message Recipient -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-primary/20 shrink-0 overflow-hidden">
+<img class="h-full w-full object-cover" data-alt="Portrait of a male product manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjtPACzvG5FKBO2c30qmGLCw6HlaBvPCh1gkfmQHxatm560xy7Jn0oJ0ucGehzmjzWOFX6xh8V4ho0mIzQfGn1czQY5GGyWSB4s2ZMlDIXGQ0T8OVA4GO5wosFfG55IV_DWvwe5xJ-kuwWTbfuTI4Z1nBLq0It2fi54PnGOI7SzrwzIIm_681sNhnXKydW2Y6JTpAP6CQSCumha6WuaLFbICQYKUKQ9nGeiZdWYOx7cM1XQg51W6v4Hv5UC0Y0dVOAtUePdqwwvVMN"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 ml-1">Alex Rivers • 10:24 AM</span>
+<div class="bg-slate-100 dark:bg-primary/10 px-4 py-2 rounded-xl rounded-bl-none text-sm text-slate-800 dark:text-slate-200">
+                                Hi there! Excited to connect about the Senior Product Designer role. I've been following your work on the recent FinTech dashboard project.
+                            </div>
+</div>
+</div>
+<!-- Message Me -->
+<div class="flex flex-row-reverse items-end gap-3 max-w-[80%] ml-auto">
+<div class="h-8 w-8 rounded-full bg-primary shrink-0 flex items-center justify-center overflow-hidden">
+<img class="h-full w-full object-cover" data-alt="Portrait of a female senior designer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbEVYVzb6vIDyDznT1OC0K8I8p6W2gKRl_ZCqnLehXkx36_S1qvN2g6yEMr4MpvW2-QcdHvuBK5EfkvT-kn1RayFBb-FKKJ4wfRHm7ujxx4xVAYsLsQ2rJclKJZOvTJThFpmZAuvbEBy6fQ6uhui-WaaiPfBkFtErs8MOXbDZgCrFdeqhCktzrCAP97424EIS3f7UsnZcV7gaL8nzn0KrQrD6DSZfzlEuJkC0-niwcQSaQj_dRBS7ZghLdX_b79g2iS4iYu-6u9s04"/>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mr-1">You • 10:26 AM</span>
+<div class="bg-primary text-white px-4 py-2 rounded-xl rounded-br-none text-sm shadow-sm shadow-primary/20">
+                                Thanks, Alex! Glad to be here. That project was a heavy lift but rewarding. Would love to share more about the design decisions we made.
+                            </div>
+</div>
+</div>
+<!-- File Sharing Message -->
+<div class="flex items-end gap-3 max-w-[80%]">
+<div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-primary/20 shrink-0 overflow-hidden">
+<img class="h-full w-full object-cover" data-alt="Portrait of Alex Rivers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpgOX2G-7THNTIqNHeIaujmumV1-6Fr5iCvlDSD0_g1-GckfNQxFtXnZQ-lTuYC7qBRxGUA8Mm3yRWx9ZkX-ufGss3t4ZBZD3q3kACEQIvxExvg4pv3A1uZx5dxsu5KqLEDeJ6oI6N1vDi6xLVGY3jZdBd2-4uE8XyFeV7KcQYw_N9UiDhWVGCiKw_GEEUztPT74kBqNMK1HWslf3cqBWOaU9BX6j9gqkfz9XEy7FBzVFj8aPp-GJqZpTLVa9I-lo0Ul_P6iiegdDH"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 ml-1">Alex Rivers • 10:28 AM</span>
+<div class="bg-slate-100 dark:bg-primary/10 px-4 py-2 rounded-xl rounded-bl-none text-sm text-slate-800 dark:text-slate-200 space-y-3">
+<p>Great! I've attached the initial brief for the scope we're looking at. Let me know if you'd like to hop on a quick voice call later today.</p>
+<div class="flex items-center gap-3 p-2 bg-white dark:bg-background-dark/80 rounded-lg border border-slate-200 dark:border-primary/30 cursor-pointer hover:border-primary transition-colors">
+<div class="p-2 bg-primary/10 rounded">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Project_Scope_v2.pdf</p>
+<p class="text-[10px] text-slate-500">2.4 MB</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">download</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 bg-white dark:bg-background-dark border-t border-slate-200 dark:border-primary/20">
+<div class="relative flex items-center gap-2">
+<div class="flex gap-1 pr-2 border-r border-slate-200 dark:border-primary/20">
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+</div>
+<input class="w-full bg-transparent border-none focus:ring-0 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Message Alex Rivers..." type="text"/>
+<button class="p-2 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Sidebar Info Panel (Hidden on small screens) -->
+<aside class="hidden lg:flex w-72 flex-col border-l border-slate-200 dark:border-primary/20 bg-slate-50/50 dark:bg-background-dark">
+<div class="p-6 flex flex-col items-center text-center">
+<div class="h-24 w-24 rounded-full border-4 border-white dark:border-primary/20 shadow-xl overflow-hidden mb-4">
+<img class="h-full w-full object-cover" data-alt="Profile picture of Alex Rivers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJMTQVYuNgPpohCUJ8_F_irZ76IjRFEweasOwO1Li_wFZV4sAsPq_B-x-wYxUA7CBOzpmPeien8_m43Y4dRx01WVAki13VSleEMDBjKOP6DLuseJrL2AzUfC85aCZSwY3Ke0etmTFdlRDSrk7CB3p-SDmUldTfcz2EB5OoJrKno95szkRwHr7emSzLvJOruSw4-t425m1NaAKv3llifJmDzbTaB-Ox5G-CYqTuJPtbUQOGDMCcYUg2qt0CaqNjU68MBswetpTnzJ9r"/>
+</div>
+<h3 class="text-lg font-bold">Alex Rivers</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Hiring Manager • Global Fintech Inc.</p>
+</div>
+<div class="px-6 py-4 space-y-6">
+<div>
+<h4 class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">Quick Actions</h4>
+<div class="grid grid-cols-1 gap-2">
+<button class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-lg hover:bg-primary/10 text-sm transition-all group">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">mic</span>
+<span class="font-medium text-slate-700 dark:text-slate-300">Start Voice Call</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-lg hover:bg-primary/10 text-sm transition-all group">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">video_chat</span>
+<span class="font-medium text-slate-700 dark:text-slate-300">Schedule Meeting</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-lg hover:bg-primary/10 text-sm transition-all group">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">share</span>
+<span class="font-medium text-slate-700 dark:text-slate-300">Share Portfolio</span>
+</button>
+</div>
+</div>
+<div class="pt-6 border-t border-slate-200 dark:border-primary/20">
+<h4 class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">Matching Intent</h4>
+<div class="bg-primary/5 rounded-lg p-3">
+<p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                                "Looking for a seasoned designer who can bridge the gap between complex data visualization and user-friendly mobile experiences."
+                            </p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Navigation Bar -->
+<nav class="flex border-t border-slate-200 dark:border-primary/20 bg-white dark:bg-background-dark px-4 py-2">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined font-fill" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Chat</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Network</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Roles</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

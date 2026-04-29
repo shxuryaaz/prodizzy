@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { ChevronLeft } from "lucide-react";
+import { StepTitle } from "@/components/stitch/onboarding";
 
 const TOTAL_STEPS = 8;
 
@@ -295,10 +296,10 @@ export default function Onboard() {
   const allSteps = [
     // Step 0: Identity
     <div key="0" className="space-y-5">
-      <StepHeader
+      <StepTitle
         step={0}
-        title="Let's start with you."
-        subtitle="Who's building this?"
+        title="Founder identity"
+        subtitle="Tell us who is driving this outcome."
       />
       <Field label="Full name" value={name} onChange={setName} placeholder="Alex Chen" />
       <Field label="Job title" value={jobTitle} onChange={setJobTitle} placeholder="Co-founder & CEO" />
@@ -306,10 +307,10 @@ export default function Onboard() {
 
     // Step 1: Company
     <div key="1" className="space-y-5">
-      <StepHeader
+      <StepTitle
         step={1}
-        title="Your company."
-        subtitle="One-liner that captures it all."
+        title="Company snapshot"
+        subtitle="Give a concise positioning statement."
       />
       <Field label="Company name" value={companyName} onChange={setCompanyName} placeholder="Acme Inc." />
       <Field
@@ -324,10 +325,10 @@ export default function Onboard() {
 
     // Step 2: Category
     <div key="2" className="space-y-6">
-      <StepHeader
+      <StepTitle
         step={2}
-        title="Category."
-        subtitle="Help us understand where you play."
+        title="Operating context"
+        subtitle="Set your market and business context."
       />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Industry</p>
@@ -357,10 +358,10 @@ export default function Onboard() {
 
     // Step 3: Clarity
     <div key="3" className="space-y-5">
-      <StepHeader
+      <StepTitle
         step={3}
-        title="Precision."
-        subtitle="Forced clarity — one sentence each."
+        title="Problem clarity"
+        subtitle="Define buyer and pain with precision."
       />
       <Field
         label="Who pays you?"
@@ -380,10 +381,10 @@ export default function Onboard() {
 
     // Step 4: Goals
     <div key="4" className="space-y-6">
-      <StepHeader
+      <StepTitle
         step={4}
-        title="What do you need?"
-        subtitle="Select everything that applies."
+        title="Intent declaration"
+        subtitle="Choose the outcomes you want now."
       />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Networking goals</p>
@@ -404,20 +405,20 @@ export default function Onboard() {
 
     // Step 5: Location
     <div key="5" className="space-y-5">
-      <StepHeader
+      <StepTitle
         step={5}
-        title="Where are you based?"
-        subtitle="We use this for geography-aware matching."
+        title="Geo preference"
+        subtitle="Location improves match routing."
       />
       <Field label="Location" value={location} onChange={setLocation2} placeholder="Bangalore, India" />
     </div>,
 
     // Step 6: Traction
     <div key="6" className="space-y-6">
-      <StepHeader
+      <StepTitle
         step={6}
-        title="Traction & fundraising."
-        subtitle="The highest-signal data for your matches. All optional."
+        title="Signal strength"
+        subtitle="Optional traction and fundraising signals."
       />
       <div className="space-y-2">
         <p className="text-xs text-white/40 uppercase tracking-wider">Monthly users / customers</p>
@@ -455,10 +456,10 @@ export default function Onboard() {
 
     // Step 7: Account (only shown when NOT already logged in)
     <div key="7" className="space-y-5">
-      <StepHeader
+      <StepTitle
         step={7}
-        title="Create your account."
-        subtitle="This is where everything gets saved."
+        title="Create account"
+        subtitle="Save this profile and unlock matchmaking."
       />
       <Field label="Email" value={email} onChange={setEmail} type="email" placeholder="you@startup.com" />
       <Field label="Password" value={password} onChange={setPassword} type="password" placeholder="Min 6 characters" />
@@ -527,7 +528,7 @@ export default function Onboard() {
             <button
               onClick={() => { if (canProceed()) go(step + 1); }}
               disabled={!canProceed()}
-              className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#E63946] text-white font-semibold py-3 rounded-xl text-sm hover:opacity-90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -535,7 +536,7 @@ export default function Onboard() {
             <button
               onClick={handleSubmit}
               disabled={!canProceed() || submitting}
-              className="flex-1 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#E63946] text-white font-semibold py-3 rounded-xl text-sm hover:opacity-90 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
             >
               {submitting
                 ? (isLoggedIn ? "Saving…" : "Creating your account…")
@@ -545,17 +546,6 @@ export default function Onboard() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-// ─── Step header ───────────────────────────────────────────────────────────────
-function StepHeader({ step, title, subtitle }: { step: number; title: string; subtitle: string }) {
-  return (
-    <div className="mb-8">
-      <p className="text-xs text-white/25 uppercase tracking-widest mb-3">Step {step + 1}</p>
-      <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">{title}</h1>
-      <p className="text-white/40 text-base">{subtitle}</p>
     </div>
   );
 }

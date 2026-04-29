@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prodizzy AI Intent Designer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 27, 50, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(80, 72, 229, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<div class="flex items-center bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-primary/20 p-4 justify-between shrink-0">
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 p-2 rounded-lg text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">Prodizzy AI</h2>
+<div class="flex items-center gap-1">
+<span class="size-2 bg-green-500 rounded-full animate-pulse"></span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Agent Active</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Main Chat Area -->
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- System Timestamp -->
+<div class="flex justify-center">
+<span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold bg-slate-200/50 dark:bg-primary/10 px-3 py-1 rounded-full">Today, 10:24 AM</span>
+</div>
+<!-- AI Message -->
+<div class="flex items-start gap-3 max-w-xl">
+<div class="bg-primary/20 p-2 rounded-full text-primary shrink-0">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-slate-500 dark:text-slate-400 text-xs ml-1">Prodizzy AI</p>
+<div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-primary/10 rounded-xl rounded-tl-none p-4 shadow-sm">
+<p class="text-sm leading-relaxed">I've initiated your <span class="text-primary font-semibold">Hire Talent</span> intent. To get the best results, let's refine the requirements for this search.</p>
+</div>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex items-start gap-3 max-w-xl ml-auto flex-row-reverse">
+<div class="bg-primary p-2 rounded-full text-white shrink-0">
+<span class="material-symbols-outlined text-sm">person</span>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<p class="text-slate-500 dark:text-slate-400 text-xs mr-1">You</p>
+<div class="bg-primary text-white rounded-xl rounded-tr-none p-4 shadow-lg">
+<p class="text-sm leading-relaxed">I need to hire a Senior Product Designer for our mobile team.</p>
+</div>
+</div>
+</div>
+<!-- AI Follow-up with Object Construction UI -->
+<div class="flex items-start gap-3 max-w-2xl">
+<div class="bg-primary/20 p-2 rounded-full text-primary shrink-0">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+</div>
+<div class="flex flex-1 flex-col gap-3">
+<p class="text-slate-500 dark:text-slate-400 text-xs ml-1">Prodizzy AI</p>
+<div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-primary/10 rounded-xl rounded-tl-none p-4 shadow-sm space-y-4">
+<p class="text-sm">Understood. I'm building the <span class="italic">Talent Profile Object</span>. Please specify the following details:</p>
+<!-- Structured Form Elements -->
+<div class="space-y-4 pt-2 border-t border-slate-200 dark:border-primary/10">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Role Title</label>
+<div class="relative">
+<input class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-lg text-sm p-3 focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white" type="text" value="Senior Product Designer"/>
+<span class="absolute right-3 top-3 text-primary material-symbols-outlined text-sm">check_circle</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Work Mode</label>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-white text-xs py-2 rounded-lg font-medium">Remote</button>
+<button class="flex-1 bg-slate-100 dark:bg-slate-900 text-slate-500 text-xs py-2 rounded-lg font-medium hover:bg-primary/10 hover:text-primary transition-colors">Hybrid</button>
+<button class="flex-1 bg-slate-100 dark:bg-slate-900 text-slate-500 text-xs py-2 rounded-lg font-medium hover:bg-primary/10 hover:text-primary transition-colors">On-site</button>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Annual Budget (USD)</label>
+<div class="flex items-center gap-3">
+<input class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+<span class="text-sm font-mono text-primary">$120k - $160k</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Core Requirements</label>
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                                    Figma Specialist <button class="material-symbols-outlined text-[14px]">close</button>
+</span>
+<span class="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                                    Mobile UI <button class="material-symbols-outlined text-[14px]">close</button>
+</span>
+<button class="bg-slate-100 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 px-3 py-1 rounded-full text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">add</span> Add Skill
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Intent Status -->
+<div class="flex items-center gap-2 px-1">
+<div class="flex-1 h-[2px] bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-primary"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Intent Completion: 75%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-primary/20">
+<div class="max-w-4xl mx-auto">
+<div class="relative flex items-center">
+<button class="absolute left-3 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="w-full bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-primary/20 rounded-xl py-4 pl-12 pr-24 text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-lg outline-none" placeholder="Add more details or confirm object..." type="text"/>
+<div class="absolute right-2 flex items-center gap-1">
+<button class="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="bg-primary text-white p-2 rounded-lg hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<div class="mt-3 flex justify-center gap-4">
+<button class="text-[11px] text-slate-500 hover:text-primary flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-sm">description</span> Preview Draft
+                </button>
+<button class="text-[11px] text-slate-500 hover:text-primary flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-sm">settings_suggest</span> Auto-fill Specs
+                </button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation -->
+<div class="flex gap-2 border-t border-slate-200 dark:border-primary/10 bg-white dark:bg-[#1c1b32] px-4 pb-3 pt-2 shrink-0">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg text-primary" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined fill-1">forum</span>
+</div>
+<span class="text-[10px] font-medium">Chat</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">target</span>
+</div>
+<span class="text-[10px] font-medium">Intents</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">group</span>
+</div>
+<span class="text-[10px] font-medium">Talent</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</div>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</div>
+</div>
+</body></html>

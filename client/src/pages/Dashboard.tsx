@@ -25,13 +25,13 @@ function matchScore(p: StartupProfile): number {
 }
 
 const GOAL_COLORS: Record<string, string> = {
-  Investors: "bg-red-500/15 text-red-400 border-red-500/20",
-  Customers: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  "Co-founders": "bg-purple-500/15 text-purple-400 border-purple-500/20",
-  Partners: "bg-teal-500/15 text-teal-400 border-teal-500/20",
-  "Enterprise Clients": "bg-orange-500/15 text-orange-400 border-orange-500/20",
-  Mentors: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
-  Talent: "bg-green-500/15 text-green-400 border-green-500/20",
+  Investors: "bg-red-500/15 text-red-300 border-red-500/30",
+  Customers: "bg-red-500/10 text-red-200 border-red-500/20",
+  "Co-founders": "bg-red-500/20 text-red-300 border-red-500/35",
+  Partners: "bg-red-500/15 text-red-200 border-red-500/20",
+  "Enterprise Clients": "bg-red-500/10 text-red-200 border-red-500/20",
+  Mentors: "bg-red-500/15 text-red-200 border-red-500/25",
+  Talent: "bg-red-500/15 text-red-300 border-red-500/30",
 };
 
 // ─── Pill ───────────────────────────────────────────────────────────────────────
@@ -632,6 +632,23 @@ export default function Dashboard() {
 
             {/* ── Activity / Connections (full width) ───────────────────────────── */}
             <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="sm:col-span-2 bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+                <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">AI intent interface</h2>
+                <div className="grid md:grid-cols-5 gap-3">
+                  {[
+                    ["Validate idea", "Market signal check"],
+                    ["Hire talent", "Build core team"],
+                    ["Find partners", "Distribution and GTM"],
+                    ["Promote", "Demand generation"],
+                    ["Raise funding", "Investor-fit shortlist"],
+                  ].map((objective) => (
+                    <div key={objective[0]} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                      <h3 className="text-sm font-semibold text-white">{objective[0]}</h3>
+                      <p className="text-xs text-white/40 mt-1">{objective[1]}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
                 <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">
                   Investor Interest {connections && connections.length > 0 && (
@@ -657,8 +674,21 @@ export default function Dashboard() {
                 )}
               </div>
               <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-6">
-                <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">Matches</h2>
-                <p className="text-white/25 text-sm">Coming soon — we're curating based on your profile.</p>
+                <h2 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-4">Matchmaking results</h2>
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                    <p className="text-xs text-white/40 uppercase tracking-wider">Top match signal</p>
+                    <p className="text-sm text-white/75 mt-1">Founder-to-operator fit improves by 24% when intent and urgency are both present.</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                    <p className="text-xs text-white/40 uppercase tracking-wider">Pipeline outcomes</p>
+                    <p className="text-sm text-white/75 mt-1">Track intro requested → accepted → in progress → closed loop for each objective.</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                    <p className="text-xs text-white/40 uppercase tracking-wider">Messaging intro system</p>
+                    <p className="text-sm text-white/75 mt-1">Intros are reviewed by the team before contact exchange to maximize relevance.</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -740,6 +770,17 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+            <div className="md:col-span-2 bg-white/[0.03] border border-white/8 rounded-2xl p-6 space-y-4">
+              <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Opportunity pipeline</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {["Matched", "Intro sent", "Conversation", "Outcome logged"].map((stage) => (
+                  <div key={stage} className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+                    <p className="text-[11px] text-white/40 uppercase tracking-wider">{stage}</p>
+                    <p className="text-xl text-[#E63946] font-semibold mt-1">0</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -799,6 +840,17 @@ export default function Dashboard() {
               <p className="text-white/40 text-sm">
                 We&apos;re working on surfacing startups that match your filters and capacity.
               </p>
+            </div>
+            <div className="md:col-span-2 bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+              <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4">Messaging intro system</h2>
+              <div className="grid md:grid-cols-3 gap-3">
+                {["Intent received", "Fit checked", "Warm intro queued"].map((item, index) => (
+                  <div key={item} className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+                    <p className="text-[11px] text-white/35 uppercase tracking-wider">Step {index + 1}</p>
+                    <p className="text-sm text-white/75 mt-1">{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

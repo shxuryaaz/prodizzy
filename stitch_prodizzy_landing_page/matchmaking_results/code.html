@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Prodizzy - Matchmaking Results</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Top Navigation Header -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 border-b border-slate-200 dark:border-primary/20 justify-between">
+<div class="flex items-center gap-2">
+<button class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Prodizzy</h2>
+<div class="flex items-center justify-end">
+<button class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-4 pb-24 max-w-2xl mx-auto w-full">
+<!-- Headline Section -->
+<div class="py-8 text-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-4">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                AI Engine Active
+            </div>
+<h1 class="text-slate-900 dark:text-white text-3xl font-bold leading-tight tracking-tight">
+                Analyzing profiles... <br/>
+<span class="text-primary">Found 3 top matches</span>
+</h1>
+</div>
+<!-- Vertical Match Cards -->
+<div class="space-y-6">
+<!-- Card 1: Premium Match with Glow -->
+<div class="relative group">
+<div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+<div class="relative flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-primary/30 overflow-hidden shadow-xl">
+<div class="p-6">
+<div class="flex items-start justify-between gap-4 mb-4">
+<div class="flex items-center gap-4">
+<div class="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional headshot of a female product designer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpTr4oJfDywoWzfoFZmpE8AMT3H5j7MBRJ3COCZzk8e7CX9tqj4xSAaFwbempX1goravL6QMur44XNNfYUEQkYr26E_4JR0MLP5YuCiZ6PXDN2n1wKdg_uNfwgg6On-oEVoOHnALNcFBzHM4w4TkliExeXzjJvzV1sCzwczx7_oxxClwhNVCYXt___YwQfdAtk3ncuTWJftCYe5HbVG1plMxvsuNfVCV2syOb3d2K7lJRziuIEvAgzEZSspkVgz7b4OjT3uZY7qPn8"/>
+</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Sarah Chen</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Senior Product Designer @ Meta</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-primary font-bold text-lg">95%</span>
+<span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Compatibility</span>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Key Skills</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium border border-slate-200 dark:border-slate-700">Figma</span>
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium border border-slate-200 dark:border-slate-700">Design Systems</span>
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium border border-slate-200 dark:border-slate-700">UX Strategy</span>
+</div>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</h4>
+<p class="text-sm text-slate-600 dark:text-slate-300">8+ years driving innovation in complex SaaS ecosystems and consumer applications.</p>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-3">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-primary/20">
+                                Request Introduction
+                            </button>
+<div class="flex gap-3">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold py-2.5 rounded-lg transition-all text-sm">
+                                    View Profile
+                                </button>
+<button class="flex-1 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-2.5 rounded-lg transition-all text-sm">
+                                    Skip
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Regular Match -->
+<div class="relative flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
+<div class="p-6">
+<div class="flex items-start justify-between gap-4 mb-4">
+<div class="flex items-center gap-4">
+<div class="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a smiling male software architect" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlZd5rzibkizygnmuo0Y1aFDrvQVqMrFM2J0caoj6h6EVu3aaoJUxylSjo-TBKzKKxQ4_L3vbGYHSTUagsvSPQumMnRdQrNPhoBwi1pJlRknaAYymSMywFhGruGx-kfdPCZw1529sUXvyQ6ZORcKDIQV22XBKBuVYHrSEBsM_jKiGANF2F_0RAmKT3--N75wpsn-i_pQACv18TXVE3ij65-dZ_2sfIRJZIxLs9dd64rC0ZV_ojdkOyWk-QtVjRIYnFIx_c9_63YdHc"/>
+</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Marcus Thorne</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Software Architect</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-primary/80 font-bold text-lg">88%</span>
+<span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Compatibility</span>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Key Skills</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">Node.js</span>
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">AWS</span>
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">Scalable Microservices</span>
+</div>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Experience</h4>
+<p class="text-sm text-slate-600 dark:text-slate-300">12+ years building high-performance backend systems for fintech startups.</p>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-3">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all">
+                            Request Introduction
+                        </button>
+<div class="flex gap-3">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold py-2.5 rounded-lg transition-all text-sm">
+                                View Profile
+                            </button>
+<button class="flex-1 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-2.5 rounded-lg transition-all text-sm">
+                                Skip
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3: Business Match -->
+<div class="relative flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
+<div class="p-6">
+<div class="flex items-start justify-between gap-4 mb-4">
+<div class="flex items-center gap-4">
+<div class="h-16 w-16 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modern office building facade for a startup company" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJ2F24v0TriuB_KV5aixVKjKGmQiigs7dOYMHGCYBxAA9nuPJWv_0H6pS7BHDb3PL7Ndu_SpcO0KSeHThufQ90wLxwpvtpf0uy5LzGJJl6w_W5DAO0jQNgXGBob40F2Qdw8V7YX5OcNsSBm-jB9dciCT6kcSmLb_g06VjrFTqIazk_R-WwsDZE2T6KW1iISv0gho9Y-gNWzshaWIlAnqL8g439qPMSZk-d9VYzvsh9ZvQoTN6CUoCm_h1_6XgNJJDWEWEwmmbjERW"/>
+</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Velocis Tech</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Scale-up Series B Agency</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-primary/80 font-bold text-lg">82%</span>
+<span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Compatibility</span>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Expertise</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">Growth Hacking</span>
+<span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium">B2B Sales</span>
+</div>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Company Info</h4>
+<p class="text-sm text-slate-600 dark:text-slate-300">Helping tech companies scale their operations through automated lead generation.</p>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-3">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-all">
+                            Request Introduction
+                        </button>
+<div class="flex gap-3">
+<button class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold py-2.5 rounded-lg transition-all text-sm">
+                                View Profile
+                            </button>
+<button class="flex-1 bg-transparent border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-2.5 rounded-lg transition-all text-sm">
+                                Skip
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 dark:border-primary/20 bg-white/90 dark:bg-background-dark/90 backdrop-blur-lg">
+<div class="flex max-w-2xl mx-auto px-4 pb-6 pt-2">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-medium leading-normal tracking-[0.015em]">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">group</span>
+<p class="text-[10px] font-medium leading-normal tracking-[0.015em]">Matches</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<p class="text-[10px] font-medium leading-normal tracking-[0.015em]">Messages</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<p class="text-[10px] font-medium leading-normal tracking-[0.015em]">Profile</p>
+</a>
+</div>
+</nav>
+</body></html>
